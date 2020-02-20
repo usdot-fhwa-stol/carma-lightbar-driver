@@ -1,0 +1,3 @@
+<launch>
+    <node name="lightbar" pkg="lightbar_driver" type="lightbar_driver_node" output="screen"/>
+</launch>
