@@ -43,14 +43,14 @@ void LightBarApplication::initialize()
     api_.push_back(lightbar_pub_.getTopic());
 
     // Services
-    get_lights_srv_ = lightbar_api_nh_->advertiseService("get_lights", &LightBarApplication::get_lights_cb, this);
+    get_lights_srv_ = lightbar_api_nh_->advertiseService("get_lights", &LightBarApplication::getLightsCB, this);
     api_.push_back(get_lights_srv_.getService());
 
-    set_lights_srv_ = lightbar_api_nh_->advertiseService("set_lights", &LightBarApplication::set_lights_cb, this);
+    set_lights_srv_ = lightbar_api_nh_->advertiseService("set_lights", &LightBarApplication::setLightsCB, this);
     api_.push_back(set_lights_srv_.getService());
 
     // Timer loop
-    status_publisher_timer_ = nh_->createWallTimer(ros::WallDuration(ros::Rate(2)),&LightBarApplication::statusUpdateTimerCB, this);
+    status_publisher_timer_ = nh_->createWallTimer(ros::WallDuration(ros::Rate(2)),&LightBarApplication::updateStatusTimerCB, this);
     status_publisher_timer_.start();
 
     // Driver Status set to Operational
@@ -61,7 +61,7 @@ void LightBarApplication::initialize()
     spin_rate = 50;
 }
 
-bool LightBarApplication::get_lights_cb(cav_srvs::GetLightsRequest&, cav_srvs::GetLightsResponse &resp) {
+bool LightBarApplication::getLightsCB(cav_srvs::GetLightsRequest&, cav_srvs::GetLightsResponse &resp) {
     static auto ON = static_cast<cav_msgs::LightBarStatus::_flash_type>(cav_msgs::LightBarStatus::ON);
     static auto OFF = static_cast<cav_msgs::LightBarStatus::_flash_type>(cav_msgs::LightBarStatus::OFF);
     
@@ -80,7 +80,7 @@ bool LightBarApplication::get_lights_cb(cav_srvs::GetLightsRequest&, cav_srvs::G
     return true;
 }
 
-bool LightBarApplication::set_lights_cb(cav_srvs::SetLightsRequest &req, cav_srvs::SetLightsResponse&) 
+bool LightBarApplication::setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs::SetLightsResponse&) 
 {
     using cav_msgs::LightBarStatus;
 
@@ -103,7 +103,7 @@ bool LightBarApplication::set_lights_cb(cav_srvs::SetLightsRequest &req, cav_srv
 
     return true;
 }
-void LightBarApplication::statusUpdateTimerCB(const ros::WallTimerEvent &) 
+void LightBarApplication::updateStatusTimerCB(const ros::WallTimerEvent &) 
 {
     cav_msgs::LightBarStatus light_bar_msg;
     // With current design, basing the lightbar status only off of front lightbar.

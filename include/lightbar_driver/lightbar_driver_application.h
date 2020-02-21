@@ -74,7 +74,7 @@ private:
      * @param resp
      * @return true always
      */
-    bool get_lights_cb(cav_srvs::GetLightsRequest &req, cav_srvs::GetLightsResponse &resp);
+    bool getLightsCB(cav_srvs::GetLightsRequest &req, cav_srvs::GetLightsResponse &resp);
 
 
     /**
@@ -86,12 +86,12 @@ private:
      * @param resp
      * @return true always
      */
-    bool set_lights_cb(cav_srvs::SetLightsRequest &req, cav_srvs::SetLightsResponse &resp);
+    bool setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs::SetLightsResponse &resp);
 
     /**
      * @brief Timer Callback that updates the lightbar status topic
      */
-    void statusUpdateTimerCB(const ros::WallTimerEvent &);
+    void updateStatusTimerCB(const ros::WallTimerEvent &);
 
     virtual void shutdown() override;
 
