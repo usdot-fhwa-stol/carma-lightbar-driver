@@ -57,9 +57,9 @@ void LightBarApplication::initialize()
     catch (CURL_EASY_PERFORM_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("When starting lightbar driver, could not connect to the lightbar IP. Turning the driver off.");
+        ROS_WARN_STREAM("When starting lightbar driver, could not connect to the lightbar IP.");
         cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::OFF;
+        status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);
         return;
     }
@@ -103,18 +103,18 @@ bool LightBarApplication::getLightsCB(cav_srvs::GetLightsRequest&, cav_srvs::Get
     catch(CURL_EASY_PERFORM_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states. Turning off...");
+        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states.");
         cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::OFF;
+        status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
     catch(PARSE_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP. Turning off...");
+        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP.");
         cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::OFF;
+        status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
@@ -147,18 +147,18 @@ bool LightBarApplication::setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs:
     catch(CURL_EASY_PERFORM_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states. Turning off...");
+        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states.");
         cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::OFF;
+        status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
     catch(PARSE_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP. Turning off...");
+        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP.");
         cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::OFF;
+        status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
@@ -179,9 +179,9 @@ bool LightBarApplication::setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs:
     catch(CURL_EASY_PERFORM_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar while trying to set states. Turning off...");
+        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar while trying to set states.");
         cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::OFF;
+        status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
@@ -201,18 +201,18 @@ void LightBarApplication::updateStatusTimerCB(const ros::WallTimerEvent &)
     catch(CURL_EASY_PERFORM_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states. Turning off...");
+        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states.");
         cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::OFF;
+        status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);
         return;
     }
     catch(PARSE_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP. Turning off...");
+        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP.");
         cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::OFF;
+        status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);
         return;
     }
