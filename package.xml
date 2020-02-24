@@ -4,8 +4,7 @@
   <description>The lightbar_driver package</description>
   <version>1.0.0</version>
   <buildtool_depend>catkin</buildtool_depend>
-  <!--<build_depend>mrt_cmake_modules</build_depend>-->
-  <license>TODO</license>
+  <license>APACHE 2.0</license>
   <maintainer email="misheel.bayartsengel@leidos.com">Misheel Bayartsengel</maintainer>
   <depend>roscpp</depend>
   <depend>cav_driver_utils</depend>

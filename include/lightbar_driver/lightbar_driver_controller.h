@@ -21,20 +21,13 @@
 #include <cstdint>
 #include <string>
 #include <netinet/in.h>
-#include <map>
-
-//Production
-#define HTTP_HOSTNAME     "192.168.88.28"
-#define HTTP_PORT         (80)
-#define HTTP_USER         "root"
-#define HTTP_PASSWORD     "00000000"
-
+#include <unordered_map>
 
 namespace lightbar_driver
 {
 // Common LightBar IDs and their meaning
-enum LightBarID {frontID, backID};
-enum LightID {GreenSolidOn = 0, YellowDimOn = 2,RightArrowOn = 3,LeftArrowOn = 4,YellowSidesOn = 5,YellowFlashOn = 6};
+enum LightBarID {FRONT_ID, BACK_ID};
+enum LightID {kGreenSolidOn = 0, kYellowDimOn = 2,kRightArrowOn = 3,kLeftArrowOn = 4,kYellowSidesOn = 5,kYellowFlashOn = 6};
 enum LightState {OFF, ON};
 
 // Custom exceptions for lightbar connection
@@ -61,15 +54,15 @@ public:
 				int yellow_sides_on, int yellow_flash_on)
 				{
 					light_by_id = {
-						{GreenSolidOn, green_solid_on},
-						{YellowDimOn, yellow_dim_on},
-						{RightArrowOn, right_arrow_on},
-						{LeftArrowOn, left_arrow_on},
-						{YellowSidesOn, yellow_sides_on},
-						{YellowFlashOn, yellow_flash_on},
+						{kGreenSolidOn, green_solid_on},
+						{kYellowDimOn, yellow_dim_on},
+						{kRightArrowOn, right_arrow_on},
+						{kLeftArrowOn, left_arrow_on},
+						{kYellowSidesOn, yellow_sides_on},
+						{kYellowFlashOn, yellow_flash_on},
 					};
 				}
-	std::map<int, int> light_by_id;
+	std::unordered_map<int, int> light_by_id;
 
 	/**
 	 * @brief LightBar equality comparison
@@ -83,7 +76,7 @@ public:
 	{
 		return light_by_id == rhs.light_by_id;
 	}
-	/// Based on operator==
+	/// Based on operator== 
 	inline bool operator!=(const LightBar& rhs) const
 	{
 		return !(*this == rhs);
@@ -113,7 +106,8 @@ private:
 	LightBar front_, back_;
 	
 public:
-	LightBarController();
+	LightBarController(){};
+	void configureHTTP(const std::string& host_name, int port, const std::string& user, const std::string& password);
 	explicit LightBarController(const std::string& host_name, int port, const std::string& user, const std::string& password);
 	void getState();
 	LightBar getState(const LightBarID& lbid);

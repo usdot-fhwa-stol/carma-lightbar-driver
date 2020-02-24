@@ -30,16 +30,16 @@ TEST(LightParamTest, test)
     ASSERT_FALSE(on_bar == off_bar);
     // testing !=
     ASSERT_TRUE(on_bar != off_bar);
-    on_bar.light_by_id[GreenSolidOn] = OFF;
+    on_bar.light_by_id[kGreenSolidOn] = OFF;
     ASSERT_FALSE(on_bar == off_bar);
-    on_bar.light_by_id[GreenSolidOn] = ON;
+    on_bar.light_by_id[kGreenSolidOn] = ON;
     // off_bar is all on now
     // on_bar is all on now as well
     off_bar = on_bar;
     // testing assignment= operator
     ASSERT_TRUE(off_bar == on_bar);
     // testing operator()
-    on_bar.light_by_id[GreenSolidOn] = OFF;
+    on_bar.light_by_id[kGreenSolidOn] = OFF;
     ASSERT_FALSE(off_bar == on_bar);
     off_bar(OFF,ON,ON,ON,ON,ON);
     ASSERT_TRUE(off_bar == on_bar);
@@ -50,11 +50,11 @@ TEST (GetStateTest, testException)
     LightBarController lbc;
     LightBar off_state;
     // Without hardware, should not be able to connect
-    ASSERT_THROW(lbc.getState(frontID), CURL_EASY_PERFORM_ERROR);
+    ASSERT_THROW(lbc.getState(FRONT_ID), CURL_EASY_PERFORM_ERROR);
     // There should not be any change in the local copy
     // lbc is created with both lights off by default
-    ASSERT_TRUE(off_state == lbc.getStateLocal(frontID));
-    ASSERT_TRUE(off_state == lbc.getStateLocal(backID));
+    ASSERT_TRUE(off_state == lbc.getStateLocal(FRONT_ID));
+    ASSERT_TRUE(off_state == lbc.getStateLocal(BACK_ID));
 }
 
 TEST (SetStateTest, testException)
@@ -62,11 +62,11 @@ TEST (SetStateTest, testException)
     LightBarController lbc;
     LightBar off_state, on_state(ON,ON,ON,ON,ON,ON);
     // Without hardware, should not be able to connect
-    ASSERT_THROW(lbc.setState(frontID, on_state), CURL_EASY_PERFORM_ERROR);
+    ASSERT_THROW(lbc.setState(FRONT_ID, on_state), CURL_EASY_PERFORM_ERROR);
     // There should not be any change in the local copy
     // lbc is created with both lights off by default
-    ASSERT_TRUE(off_state == lbc.getStateLocal(frontID));
-    ASSERT_TRUE(off_state == lbc.getStateLocal(backID));
+    ASSERT_TRUE(off_state == lbc.getStateLocal(FRONT_ID));
+    ASSERT_TRUE(off_state == lbc.getStateLocal(BACK_ID));
 }
 /*
 TODO Need mock localhost listener to implement this.
@@ -76,11 +76,11 @@ TEST (SendRequestTest, test1)
     LightBar off_state, on_state(ON,ON,ON,ON,ON,ON);
     std::string post_data = "", http_request = "api/v1/employees";
     // Without hardware, should not be able to connect
-    ASSERT_THROW(lbc.sendRequest(frontID, on_state), CURL_EASY_PERFORM_ERROR);
+    ASSERT_THROW(lbc.sendRequest(FRONT_ID, on_state), CURL_EASY_PERFORM_ERROR);
     // There should not be any change in the local copy
     // lbc is created with both lights off by default
-    ASSERT_TRUE(off_state == lbc.getStateLocal(frontID));
-    ASSERT_TRUE(off_state == lbc.getStateLocal(backID));
+    ASSERT_TRUE(off_state == lbc.getStateLocal(FRONT_ID));
+    ASSERT_TRUE(off_state == lbc.getStateLocal(BACK_ID));
 }
 */
 TEST (UpdateStatusTest, test1)
@@ -95,8 +95,8 @@ TEST (UpdateStatusTest, test1)
     LightBar response_back;
 	// Update according to string XML response
 	lbc.updateStatus(response_str);
-    LightBar front = lbc.getStateLocal(frontID);
-    LightBar back = lbc.getStateLocal(backID);
+    LightBar front = lbc.getStateLocal(FRONT_ID);
+    LightBar back = lbc.getStateLocal(BACK_ID);
     ASSERT_TRUE (front == response_front);
     ASSERT_TRUE (back == response_back);
 
@@ -105,8 +105,8 @@ TEST (UpdateStatusTest, test1)
     response_front(OFF, ON, ON, OFF, OFF, OFF);
     response_back(ON,OFF,OFF,OFF,OFF,OFF);
     lbc.updateStatus(response_str);
-    front = lbc.getStateLocal(frontID);
-    back = lbc.getStateLocal(backID);
+    front = lbc.getStateLocal(FRONT_ID);
+    back = lbc.getStateLocal(BACK_ID);
     ASSERT_TRUE (front == response_front);
     ASSERT_TRUE (back == response_back);
 }

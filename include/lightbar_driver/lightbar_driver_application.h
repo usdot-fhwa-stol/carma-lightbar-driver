@@ -25,13 +25,19 @@
 #include <ros/ros.h>
 #include <vector>
 
+// LightBar Hardware Configuration Default Values
+#define HTTP_HOSTNAME     "192.168.88.28"
+#define HTTP_PORT         (80)
+#define HTTP_USER         "root"
+#define HTTP_PASSWORD     "00000000"
+
 namespace lightbar_driver
 {
 class LightBarApplication: public cav::DriverApplication
 {
 public:
     LightBarApplication(int argc, char** argv);
-    ~LightBarApplication() { shutdown(); }
+    ~LightBarApplication() {}
 private:
 
     std::vector<std::string> api_;
@@ -39,7 +45,6 @@ private:
      //ROS
     ros::Publisher lightbar_pub_;
     ros::ServiceServer get_lights_srv_, set_lights_srv_;
-    std::shared_ptr<ros::NodeHandle> lightbar_api_nh_;
     ros::WallTimer status_publisher_timer_;
     LightBarController lightbar_ctrl_;
 
@@ -92,8 +97,6 @@ private:
      * @brief Timer Callback that updates the lightbar status topic
      */
     void updateStatusTimerCB(const ros::WallTimerEvent &);
-
-    virtual void shutdown() override;
 
     /**
      * @brief Called by the base DriverApplication class to fetch this implementation's api

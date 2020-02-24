@@ -20,28 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <string>/*
- * Copyright (C) 2019-2020 LEIDOS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
-
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -55,10 +33,6 @@
 
 namespace lightbar_driver
 {
-// Default constructor 
-
-LightBarController::LightBarController()
-	: LightBarController(HTTP_HOSTNAME, HTTP_PORT, HTTP_USER, HTTP_PASSWORD){}
 
 // Explicit constructor
 LightBarController::LightBarController(const std::string& host_name, int port, const std::string& user, const std::string& password)
@@ -71,6 +45,14 @@ size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
     return size * nmemb;
 }
 
+void LightBarController::configureHTTP(const std::string& host_name, int port, const std::string& user, const std::string& password)
+{
+	host_name_ = host_name;
+	port_ = port;
+	user_ = user;
+	password_ = password;
+	return;
+}
 // Send GET (if no post_data) or POST request to ip and return the response
 std::string LightBarController::sendRequest(const std::string& post_data = "", const std::string& http_request = "digitaloutput/all/value")
 {
@@ -147,7 +129,10 @@ void LightBarController::updateStatus(const std::string& response)
 			if (light_id == 1 || light_id == 7 || light_id == 9 || light_id == 15)
 				continue;
 
-			// LightBar hardware 1 means off, so need to invert.
+			// LightBar hardware http requests/responses assumes 1 as off state.
+			// As we use common 0:off 1:on states in code, we need to invert when parsing.
+			// For example if XML response is value=1, it means OFF, so we store as 0 in our code (bitwise XOR with 1).
+
 			if ( light_id <=6) //front
 				front_.light_by_id[light_id] = std::stoi(light.child("VALUE").child_value())^1;
 			else
@@ -180,9 +165,9 @@ LightBar LightBarController::getState(const LightBarID& lbid)
 	// Get the most recent status
 	getState();
 	// Return the specified light bar's status
-	if (lbid == frontID)
+	if (lbid == FRONT_ID)
 		return front_;
-	else if (lbid == backID)
+	else if (lbid == BACK_ID)
 		return back_;
 	else
 		throw LIGHTBAR_ERROR(std::string("In function ") + __FUNCTION__ + std::string(": LightBarID should be either 0:front or 1:back.\n"));
@@ -192,9 +177,9 @@ LightBar LightBarController::getState(const LightBarID& lbid)
 LightBar LightBarController::getStateLocal(const LightBarID& lbid)
 {
 	// Get local state without sending GET request to lightbar ips
-	if (lbid == frontID)
+	if (lbid == FRONT_ID)
 		return front_;
-	else if (lbid == backID)
+	else if (lbid == BACK_ID)
 		return back_;
 	else
 		throw LIGHTBAR_ERROR(std::string("In function ") + __FUNCTION__ + std::string(": LightBarID should be either 0:front or 1:back.\n"));
@@ -206,7 +191,11 @@ void LightBarController::setState(const LightBarID& lbid, const LightBar& lb)
 	std::string post_data = "";
 	// Create http request from lightbar class,  
 	// automatically inverted the request here due to hardware configuration.
-	if (lbid == frontID)
+	// LightBar hardware http requests/responses assumes 1 as off state.
+	// As we use common 0:off 1:on states in code, we need to invert when parsing.
+	// For example if in code it is off state:0, then request will be value=1 (bitwise XOR with 1).
+
+	if (lbid == FRONT_ID)
 	{
 		for (std::pair<int, int> element : lb.light_by_id) 
 		{
@@ -219,7 +208,7 @@ void LightBarController::setState(const LightBarID& lbid, const LightBar& lb)
 			post_data += "&";
 		}
 	}
-	else if (lbid == backID)
+	else if (lbid == BACK_ID)
 	{
 		for (std::pair<int, int> element : front_.light_by_id) 
 		{
@@ -241,7 +230,7 @@ void LightBarController::setState(const LightBarID& lbid, const LightBar& lb)
 	sendRequest(post_data);
 
 	// Update local copy of lightbar only if POST was successful
-	if (lbid == frontID)
+	if (lbid == FRONT_ID)
 		front_ = lb;
 	else
 		back_ = lb;
@@ -254,9 +243,9 @@ void LightBarController::setState(const LightBarID& lbid, const LightID& lid, in
 {
 	// Create modified local copy of lightbar
 	LightBar new_pattern;
-	if (lbid == frontID)
+	if (lbid == FRONT_ID)
 		new_pattern = front_;
-	else if (lbid == backID)
+	else if (lbid == BACK_ID)
 		new_pattern = back_;
 	else
 		throw LIGHTBAR_ERROR(std::string("In function ") + __FUNCTION__ + std::string(": LightBarID should be either 0:front or 1:back.\n"));
@@ -271,16 +260,16 @@ void LightBarController::setState(const LightBarID& lbid, const LightID& lid, in
 void LightBarController::turnOffAll()
 {
 	LightBar off_state(OFF,OFF,OFF,OFF,OFF,OFF);
-	LightBarController::setState(frontID, off_state);
-	LightBarController::setState(backID, off_state);
+	LightBarController::setState(FRONT_ID, off_state);
+	LightBarController::setState(BACK_ID, off_state);
 	return;
 }
 
 void LightBarController::turnOnAll()
 {
 	LightBar on_state(ON,ON,ON,ON,ON,ON);
-	LightBarController::setState(frontID, on_state);
-	LightBarController::setState(backID, on_state);
+	LightBarController::setState(FRONT_ID, on_state);
+	LightBarController::setState(BACK_ID, on_state);
 	return;
 }
 } // namespace lightbar_driver
