@@ -97,7 +97,6 @@ install(TARGETS ${PROJECT_NAME}_node
 
 ## Mark cpp header files for installation
 install(DIRECTORY 
-  thirdparty
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   PATTERN ".svn" EXCLUDE
 )
