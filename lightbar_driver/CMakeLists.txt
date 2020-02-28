@@ -3,8 +3,8 @@ project(lightbar_driver)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+#set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+#set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
@@ -32,8 +32,8 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES lightbar_driver
   CATKIN_DEPENDS
-  cav_msgs
   cav_driver_utils
+  cav_msgs
   pugixml
 )
 

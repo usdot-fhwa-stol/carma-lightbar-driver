@@ -18,7 +18,6 @@ RUN mkdir ~/src
 COPY --chown=carma . /home/carma/src/
 RUN ~/src/docker/checkout.sh
 RUN ~/src/docker/install.sh
-
 FROM usdotfhwastol/carma-base:3.6.0
 
 ARG BUILD_DATE="NULL"
