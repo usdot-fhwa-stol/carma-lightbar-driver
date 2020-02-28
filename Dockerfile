@@ -37,4 +37,4 @@ LABEL org.label-schema.build-date=${BUILD_DATE}
 COPY --from=setup /home/carma/install /opt/carma/install
 RUN sudo chmod -R +x /opt/carma/install
 
-CMD  [ "wait-for-it.sh", "localhost:11311", "--", "roslaunch", "lightbar_driver", "lightbar_driver_node.launch", "remap_ns:=/saxton_cav/drivers" ]
+CMD  [ "wait-for-it.sh", "localhost:11311", "--", "roslaunch", "lightbar_driver", "lightbar_driver_node.launch"]
