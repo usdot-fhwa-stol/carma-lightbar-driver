@@ -32,8 +32,8 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES lightbar_driver
   CATKIN_DEPENDS
-  cav_msgs
   cav_driver_utils
+  cav_msgs
   pugixml
 )
 
@@ -97,7 +97,6 @@ install(TARGETS ${PROJECT_NAME}_node
 
 ## Mark cpp header files for installation
 install(DIRECTORY 
-  thirdparty
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   PATTERN ".svn" EXCLUDE
 )
@@ -108,7 +107,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-        FILES_MATCHING PATTERN "*.h"
+        FILES_MATCHING PATTERN "*.launch"
         PATTERN ".svn" EXCLUDE)
 
 #############

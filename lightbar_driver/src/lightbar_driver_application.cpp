@@ -57,7 +57,7 @@ void LightBarApplication::initialize()
     catch (CURL_EASY_PERFORM_ERROR& e)
     {
         ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("When starting lightbar driver, could not connect to the lightbar IP.");
+        ROS_WARN_STREAM("When starting lightbar driver, could not connect to the lightbar IP: " + host_name);
         cav_msgs::DriverStatus status = getStatus();
         status.status = cav_msgs::DriverStatus::FAULT;
         setStatus(status);

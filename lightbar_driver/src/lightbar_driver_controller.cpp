@@ -68,7 +68,7 @@ std::string LightBarController::sendRequest(const std::string& post_data = "", c
 	std::string readBuffer = "";
 
 	curl_easy_setopt(curl, CURLOPT_URL, urlss.str().c_str());
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	
 	if (post_data == "") // Get request
 	{
 		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
