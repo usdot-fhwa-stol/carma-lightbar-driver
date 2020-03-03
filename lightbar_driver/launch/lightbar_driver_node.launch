@@ -1,15 +1,13 @@
 <launch>
     <arg name="host_name" default="192.168.88.28" doc="Custom configured IP of the lightbar on all cars"/> 
     <arg name="port" default="80" doc="Custom configured IP port of the lightbar on all cars."/>
-    <arg name="user" default="root" doc="Username to connect to the IP. Pass empty string if there is no username"/>
-    <arg name="password" default="00000000" doc="Password to connect to the IP. Pass empty string if there is no password"/>
+    <arg name="auth_config_dir" default= "/opt/carma/vehicle/calibration/lightbar/auth_config.yaml"  doc="File containg Username and Password for the Lightbar IP"/>
     <arg name="status_update_rate" default="2" doc="Rate (in sec) at which lighbar will publish to light_bar_status topic"/>
 
     <node name="lightbar" pkg="lightbar_driver" type="lightbar_driver_node" output="screen">
         <param name= "host_name" value = "$(arg host_name)"/>
         <param name= "port" value = "$(arg port)"/>
-        <param name= "user" value = "$(arg user)"/>
-        <param name= "password" value = "$(arg password)"/>
         <param name= "status_update_rate" value = "$(arg status_update_rate)"/>
+        <rosparam command="load" file= "$(arg auth_config_dir)"/>
     </node>
 </launch>
