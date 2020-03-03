@@ -28,8 +28,8 @@
 // LightBar Hardware Configuration Default Values
 #define HTTP_HOSTNAME     "192.168.88.28"
 #define HTTP_PORT         (80)
-#define HTTP_USER         "root"
-#define HTTP_PASSWORD     "00000000"
+#define HTTP_USER         ""
+#define HTTP_PASSWORD     ""
 
 namespace lightbar_driver
 {
