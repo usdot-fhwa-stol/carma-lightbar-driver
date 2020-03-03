@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>lightbar_driver</name>
+  <description>The lightbar_driver package</description>
+  <version>1.0.0</version>
+  <buildtool_depend>catkin</buildtool_depend>
+  <license>APACHE 2.0</license>
+  <maintainer email="misheel.bayartsengel@leidos.com">Misheel Bayartsengel</maintainer>
+  <depend>roscpp</depend>
+  <depend>cav_driver_utils</depend>
+  <depend>cav_msgs</depend>
+  <depend>curl</depend>
+  <depend>pugixml</depend>
+
+</package>
