@@ -24,7 +24,7 @@ namespace lightbar_driver
 TEST(LightParamTest, test)
 {
     // Initialize
-    LightBar on_bar(ON,ON,ON,ON,ON,ON);
+    LightBar on_bar(ON,ON,ON,ON,ON,ON,ON);
     LightBar off_bar;
     // testing ==
     ASSERT_FALSE(on_bar == off_bar);
@@ -41,7 +41,7 @@ TEST(LightParamTest, test)
     // testing operator()
     on_bar.light_by_id[kGreenSolidOn] = OFF;
     ASSERT_FALSE(off_bar == on_bar);
-    off_bar(OFF,ON,ON,ON,ON,ON);
+    off_bar(OFF,ON, ON,ON,ON,ON,ON);
     ASSERT_TRUE(off_bar == on_bar);
 }
 
@@ -60,7 +60,7 @@ TEST (GetStateTest, testException)
 TEST (SetStateTest, testException)
 {
     LightBarController lbc;
-    LightBar off_state, on_state(ON,ON,ON,ON,ON,ON);
+    LightBar off_state, on_state(ON,ON, ON,ON,ON,ON,ON);
     // Without hardware, should not be able to connect
     ASSERT_THROW(lbc.setState(FRONT_ID, on_state), CURL_EASY_PERFORM_ERROR);
     // There should not be any change in the local copy
@@ -91,7 +91,7 @@ TEST (UpdateStatusTest, test1)
     // test if updateStatus can update using XML string, and
     // test if it updates light IDs only are in the string
 	std::string response_str = "<ADAM-6256 status=\"OK\"><DO><ID>0</ID><VALUE>1</VALUE></DO><DO><ID>2</ID><VALUE>0</VALUE></DO><DO><ID>3</ID><VALUE>0</VALUE></DO></ADAM-6256> ";
-    LightBar response_front(OFF, ON, ON, OFF, OFF, OFF);
+    LightBar response_front(OFF, OFF, ON, ON, OFF, OFF, OFF);
     LightBar response_back;
 	// Update according to string XML response
 	lbc.updateStatus(response_str);
@@ -102,8 +102,8 @@ TEST (UpdateStatusTest, test1)
 
     // test if updateStatus can update two lightbars at the same time
     response_str = "<ADAM-6256 status=\"OK\"><DO><ID>0</ID><VALUE>1</VALUE></DO><DO><ID>1</ID><VALUE>0</VALUE></DO><DO><ID>9</ID><VALUE>0</VALUE></DO><DO><ID>8</ID><VALUE>0</VALUE></DO></ADAM-6256> ";
-    response_front(OFF, ON, ON, OFF, OFF, OFF);
-    response_back(ON,OFF,OFF,OFF,OFF,OFF);
+    response_front(OFF, ON, ON, ON, OFF, OFF, OFF);
+    response_back(ON, ON, OFF,OFF,OFF,OFF,OFF);
     lbc.updateStatus(response_str);
     front = lbc.getStateLocal(FRONT_ID);
     back = lbc.getStateLocal(BACK_ID);

@@ -125,6 +125,7 @@ bool LightBarApplication::getLightsCB(cav_srvs::GetLightsRequest&, cav_srvs::Get
     resp.status.left_arrow  = curr_front.light_by_id[kLeftArrowOn]       ? ON : OFF;
     resp.status.right_arrow = curr_front.light_by_id[kRightArrowOn]      ? ON : OFF;
     resp.status.green_solid = curr_front.light_by_id[kGreenSolidOn]      ? ON : OFF;
+    resp.status.green_flash = curr_front.light_by_id[kGreenFlashOn]      ? ON : OFF;
     resp.status.flash = curr_front.light_by_id[kYellowFlashOn]           ? ON : OFF;
     resp.status.sides_solid = curr_front.light_by_id[kYellowSidesOn]     ? ON : OFF;
 
@@ -167,6 +168,7 @@ bool LightBarApplication::setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs:
     curr_front.light_by_id[kLeftArrowOn]  = req.set_state.left_arrow     == LightBarStatus::ON;
     curr_front.light_by_id[kRightArrowOn] = req.set_state.right_arrow    == LightBarStatus::ON;
     curr_front.light_by_id[kGreenSolidOn] = req.set_state.green_solid    == LightBarStatus::ON;
+    curr_front.light_by_id[kGreenFlashOn] = req.set_state.green_flash    == LightBarStatus::ON;
     curr_front.light_by_id[kYellowFlashOn]= req.set_state.flash          == LightBarStatus::ON;
     curr_front.light_by_id[kYellowSidesOn]= req.set_state.sides_solid    == LightBarStatus::ON;
 
@@ -219,7 +221,8 @@ void LightBarApplication::updateStatusTimerCB(const ros::WallTimerEvent &)
     light_bar_msg.yellow_solid  = curr_front.light_by_id[kYellowDimOn];         
     light_bar_msg.left_arrow    = curr_front.light_by_id[kLeftArrowOn];         
     light_bar_msg.right_arrow   = curr_front.light_by_id[kRightArrowOn];        
-    light_bar_msg.green_solid   = curr_front.light_by_id[kGreenSolidOn];        
+    light_bar_msg.green_solid   = curr_front.light_by_id[kGreenSolidOn];
+    light_bar_msg.green_flash   = curr_front.light_by_id[kGreenFlashOn];
     light_bar_msg.flash         = curr_front.light_by_id[kYellowFlashOn];         
     light_bar_msg.sides_solid   = curr_front.light_by_id[kYellowSidesOn];   
 
