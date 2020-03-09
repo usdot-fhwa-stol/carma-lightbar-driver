@@ -49,7 +49,7 @@ class LightBar
 public:
 	// Turn everything on by default
 	LightBar():LightBar (OFF,OFF,OFF,OFF,OFF,OFF,OFF){}              
-	explicit LightBar(int green_solid_on, int, green_flash_on, int yellow_dim_on, 
+	explicit LightBar(int green_solid_on, int green_flash_on, int yellow_dim_on, 
 				int right_arrow_on, int left_arrow_on, 
 				int yellow_sides_on, int yellow_flash_on)
 				{
@@ -86,7 +86,7 @@ public:
 	 * @brief LightBar () assignment operator
 	 * @param light_values all six values that need to be changed
 	 */
-	inline void operator()(int green_solid_on, int, green_flash_on, int yellow_dim_on, 
+	inline void operator()(int green_solid_on, int green_flash_on, int yellow_dim_on, 
 				int right_arrow_on, int left_arrow_on, 
 				int yellow_sides_on, int yellow_flash_on)
 				{
