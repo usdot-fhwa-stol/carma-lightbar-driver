@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ "$SOURCE_BRANCH" = "feature/automated_builds" ]]; then
+    # substitute commands for checkout.sh
+    sed -i "s|~/src/docker/checkout.sh|git clone https://github.com/usdot-fhwa-stol/CARMAMsgs.git ${dir}/src/CARMAMsgs --branch $SOURCE_BRANCH --depth 1 \&\& git clone https://github.com/usdot-fhwa-stol/CARMAUtils.git ${dir}/src/CARMAUtils --branch $SOURCE_BRANCH --depth 1|g" \
+        Dockerfile
+    # substitute commands for install.sh
+    sed -i "s|~/src/docker/install.sh|source /opt/ros/kinetic/setup.bash && cd ~/ \&\& catkin_make install|g" \
+        Dockerfile
+fi
