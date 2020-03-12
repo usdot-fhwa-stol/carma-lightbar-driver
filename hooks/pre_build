@@ -1,7 +1,10 @@
 #!/bin/bash
 
 if [[ "$SOURCE_BRANCH" = "feature/automated_builds" ]]; then
-    # substitute base image versions, and commands for checkout.sh and install.sh
-    sed -i "s|~/src/docker/install.sh|source /opt/ros/kinetic/setup.bash \&\& cd ~/ \&\& catkin_make install|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:stable|g; s|~/src/docker/checkout.sh|git clone https://github.com/usdot-fhwa-stol/CARMAMsgs.git ${dir}/src/CARMAMsgs --branch $SOURCE_BRANCH --depth 1 \&\& git clone https://github.com/usdot-fhwa-stol/CARMAUtils.git ${dir}/src/CARMAUtils --branch $SOURCE_BRANCH --depth 1|g" \
+    # substitute commands for checkout.sh and install.sh
+    sed -i "s|~/src/docker/install.sh|source /opt/ros/kinetic/setup.bash \&\& cd ~/ \&\& catkin_make install|g; s|~/src/docker/checkout.sh|git clone https://github.com/usdot-fhwa-stol/CARMAMsgs.git ~/src/CARMAMsgs --branch $SOURCE_BRANCH --depth 1 \&\& git clone https://github.com/usdot-fhwa-stol/CARMAUtils.git ~/src/CARMAUtils --branch $SOURCE_BRANCH --depth 1|g" \
+        Dockerfile
+    # substitute docker base image repo name and tag
+    sed -i "s|usdotfhwastol|stableusdotfhwastol|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:stable|g" \
         Dockerfile
 fi
