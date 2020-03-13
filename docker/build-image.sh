@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -t|--test)
-            USERNAME=stableusdotfhwastol
+            USERNAME=usdotfhwastoldev
             COMPONENT_VERSION_STRING=stable
             shift
             ;;

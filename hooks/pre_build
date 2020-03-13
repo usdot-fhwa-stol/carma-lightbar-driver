@@ -2,6 +2,6 @@
 
 if [[ "$SOURCE_BRANCH" = "feature/test_build" ]]; then
     # add -t flag to checkout.sh and update image dependencies
-    sed -i "s|~/src/docker/checkout.sh|~/src/docker/checkout.sh -t|g; s|usdotfhwastol|stableusdotfhwastol|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:stable|g" \
+    sed -i "s|~/src/docker/checkout.sh|~/src/docker/checkout.sh -t|g; s|usdotfhwastol|usdotfhwastoldev|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:stable|g" \
         Dockerfile
 fi
