@@ -49,7 +49,7 @@ jobs:
           name: Pull Deps
           command: |
             source ${INIT_ENV}
-            ./src/CARMALightbarDriver/docker/checkout.sh ${PWD}
+            ./src/CARMALightbarDriver/docker/checkout.sh -r ${PWD}
       - run:
           name: Build Driver
           command: |
