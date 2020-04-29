@@ -15,7 +15,10 @@
 #  the License.
 
 # This script takes a system release name and version number as arguments, and 
-# updates version dependencies in Dockerfile and /docker/checkout.sh accordingly
+# updates version dependencies in Dockerfile and /docker/checkout.sh accordingly.
+
+# The -u | --unprompted option can be used to skip the interactive prompts, and
+# provide arguments directly from the commandline.
 
 if [[ $# -eq 0 ]]; then
     echo "Enter the system release name:"
@@ -38,17 +41,26 @@ done
 fi
 
 SYSTEM_RELEASE=carma-system-$RELEASE_VERSION
+RELEASE_BRANCH=release/$RELEASE_NAME
 
-echo "Checking out release/$RELEASE_NAME branch."
-git checkout release/$RELEASE_NAME
+if git ls-remote -q | grep $RELEASE_BRANCH; then
+    echo "Checking out $RELEASE_BRANCH branch."
+    git checkout $RELEASE_BRANCH
 
-echo "Updating checkout.sh to point to system release version."
-sed -i "s|CARMA[a-zA-Z]*_[0-9]*\.[0-9]*\.[0-9]*|$SYSTEM_RELEASE|g; s|carma-[a-zA-Z]*-[0-9]*\.[0-9]*\.[0-9]*|$SYSTEM_RELEASE|g" docker/checkout.sh
+    echo "Updating checkout.sh to point to system release version."
+    sed -i "s|CARMA[a-zA-Z]*_[0-9]*\.[0-9]*\.[0-9]*|$SYSTEM_RELEASE|g; s|carma-[a-zA-Z]*-[0-9]*\.[0-9]*\.[0-9]*|$SYSTEM_RELEASE|g" docker/checkout.sh
 
-echo "Updating Dockerfile to point to system release version."
-sed -i "s|:CARMASystem_[0-9]*\.[0-9]*\.[0-9]*|:$SYSTEM_RELEASE|g; s|:carma-system-[0-9]*\.[0-9]*\.[0-9]*|:$SYSTEM_RELEASE|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:$SYSTEM_RELEASE|g" Dockerfile
+    echo "Updating Dockerfile to point to system release version."
+    sed -i "s|:CARMASystem_[0-9]*\.[0-9]*\.[0-9]*|:$SYSTEM_RELEASE|g; s|:carma-system-[0-9]*\.[0-9]*\.[0-9]*|:$SYSTEM_RELEASE|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:$SYSTEM_RELEASE|g" Dockerfile
 
-git add .
+    git add .
 
-git commit -m "Updated dependencies for $SYSTEM_RELEASE"
+    git commit -m "Updated dependencies for $SYSTEM_RELEASE"
 
+    git tag -a $SYSTEM_RELEASE -m "$SYSTEM_RELEASE version tag."
+
+    echo "Dockerfile and checkout.sh updated, committed, and tagged."
+else
+    echo "$RELEASE_BRANCH does not exist. Exiting script."
+    exit 0
+fi
