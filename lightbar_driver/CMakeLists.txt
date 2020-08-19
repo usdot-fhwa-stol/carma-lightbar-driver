@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   cav_msgs
   roscpp
 )
-#message(STATUS "driver application include path: " ${driver_application_INCLUDE_DIRS})
+
 
 find_package(CURL REQUIRED)
 
@@ -50,13 +50,10 @@ catkin_package(
 include_directories(
  include
   ${catkin_INCLUDE_DIRS}
-  #message(STATUS "driver application include path: " ${driver_application_INCLUDE_DIRS})
- #${driver_application_INCLUDE_DIRS}
   ${CURL_INCLUDE_DIRS}
   ${PUGIXML_INCLUDE_DIRS}
 )
 
-#file(GLOB_RECURSE headers */*.hpp */*.h)
 
 
 ## Declare a C++ executable
