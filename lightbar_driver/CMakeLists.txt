@@ -19,10 +19,7 @@ find_package(CURL REQUIRED)
 find_library(PUGIXML_LIBRARIES
   NAMES pugixml
 )
-find_library( driver_application 
-  NAMES driver_application
 
-)
 
 find_path(PUGIXML_INCLUDE_DIRS
   NAMES pugixml.hpp
@@ -59,8 +56,6 @@ include_directories(
 ## Declare a C++ executable
 
 add_executable(${PROJECT_NAME}_node
-                ${headers}
-                ${driver_application_INCLUDE_DIRS}
                 src/main.cpp
                 src/lightbar_driver_controller.cpp
                 src/lightbar_driver_application.cpp
