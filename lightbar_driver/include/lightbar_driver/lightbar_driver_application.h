@@ -18,7 +18,7 @@
 #define _LIGHTBAR_APPLICATION_H_
 
 #include "lightbar_driver/lightbar_driver_controller.h"
-#include <cav_driver_utils/driver_application.h>
+#include <cav_driver_utils/driver_application/driver_application.h>
 #include <cav_msgs/LightBarStatus.h>
 #include <cav_srvs/GetLights.h>
 #include <cav_srvs/SetLights.h>

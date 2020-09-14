@@ -105,8 +105,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-        FILES_MATCHING PATTERN "*.launch"
-        PATTERN ".svn" EXCLUDE)
+)
 
 #############
 ## Testing ##
