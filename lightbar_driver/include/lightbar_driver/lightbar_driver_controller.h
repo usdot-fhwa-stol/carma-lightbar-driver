@@ -48,7 +48,7 @@ class LightBar
 {
 public:
 	// Turn everything on by default
-	LightBar():LightBar (OFF,OFF,OFF,OFF,OFF,OFF){}              
+	LightBar():LightBar (OFF,OFF,OFF,OFF,OFF,OFF,OFF){}              
 	explicit LightBar(int green_solid_on, int green_flash_on, int yellow_dim_on, 
 				int right_arrow_on, int left_arrow_on, 
 				int yellow_sides_on, int yellow_flash_on)

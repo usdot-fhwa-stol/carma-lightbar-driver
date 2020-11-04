@@ -168,7 +168,7 @@ bool LightBarApplication::setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs:
     curr_front.light_by_id[kLeftArrowOn]  = req.set_state.left_arrow     == LightBarStatus::ON;
     curr_front.light_by_id[kRightArrowOn] = req.set_state.right_arrow    == LightBarStatus::ON;
     curr_front.light_by_id[kGreenSolidOn] = req.set_state.green_solid    == LightBarStatus::ON;
-    curr_front.light_by_id[kGreenFlashOn] =`req.set_state.green_flash    == LightBarStatus::ON;
+    curr_front.light_by_id[kGreenFlashOn] = req.set_state.green_flash    == LightBarStatus::ON;
     curr_front.light_by_id[kYellowFlashOn]= req.set_state.flash          == LightBarStatus::ON;
     curr_front.light_by_id[kYellowSidesOn]= req.set_state.sides_solid    == LightBarStatus::ON;
 

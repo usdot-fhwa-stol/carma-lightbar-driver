@@ -259,7 +259,7 @@ void LightBarController::setState(const LightBarID& lbid, const LightID& lid, in
 
 void LightBarController::turnOffAll()
 {
-	LightBar off_state(OFF,OFF,OFF,OFF,OFF,OFF);
+	LightBar off_state(OFF,OFF,OFF,OFF,OFF,OFF,OFF);
 	LightBarController::setState(FRONT_ID, off_state);
 	LightBarController::setState(BACK_ID, off_state);
 	return;
@@ -267,7 +267,7 @@ void LightBarController::turnOffAll()
 
 void LightBarController::turnOnAll()
 {
-	LightBar on_state(ON,ON,ON,ON,ON,ON);
+	LightBar on_state(ON,ON,ON, ON,ON,ON,ON);
 	LightBarController::setState(FRONT_ID, on_state);
 	LightBarController::setState(BACK_ID, on_state);
 	return;
