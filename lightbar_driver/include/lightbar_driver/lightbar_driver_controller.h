@@ -27,7 +27,7 @@ namespace lightbar_driver
 {
 // Common LightBar IDs and their meaning
 enum LightBarID {FRONT_ID, BACK_ID};
-enum LightID {kGreenSolidOn = 0, kYellowDimOn = 2,kRightArrowOn = 3,kLeftArrowOn = 4,kYellowSidesOn = 5,kYellowFlashOn = 6};
+enum LightID {kGreenSolidOn = 0, kGreenFlashOn = 1, kYellowDimOn = 2,kRightArrowOn = 3,kLeftArrowOn = 4,kYellowSidesOn = 5,kYellowFlashOn = 6};
 enum LightState {OFF, ON};
 
 // Custom exceptions for lightbar connection
@@ -49,12 +49,13 @@ class LightBar
 public:
 	// Turn everything on by default
 	LightBar():LightBar (OFF,OFF,OFF,OFF,OFF,OFF){}              
-	explicit LightBar(int green_solid_on, int yellow_dim_on, 
+	explicit LightBar(int green_solid_on, int green_flash_on, int yellow_dim_on, 
 				int right_arrow_on, int left_arrow_on, 
 				int yellow_sides_on, int yellow_flash_on)
 				{
 					light_by_id = {
 						{kGreenSolidOn, green_solid_on},
+						{kGreenFlashOn, green_flash_on},
 						{kYellowDimOn, yellow_dim_on},
 						{kRightArrowOn, right_arrow_on},
 						{kLeftArrowOn, left_arrow_on},
@@ -85,11 +86,11 @@ public:
 	 * @brief LightBar () assignment operator
 	 * @param light_values all six values that need to be changed
 	 */
-	inline void operator()(int green_solid_on, int yellow_dim_on, 
+	inline void operator()(int green_solid_on, int green_flash_on, int yellow_dim_on, 
 				int right_arrow_on, int left_arrow_on, 
 				int yellow_sides_on, int yellow_flash_on)
 				{
-					LightBar rhs(green_solid_on, yellow_dim_on, right_arrow_on, 
+					LightBar rhs(green_solid_on, green_flash_on, yellow_dim_on, right_arrow_on, 
 						left_arrow_on, yellow_sides_on, yellow_flash_on);
 					this->light_by_id = rhs.light_by_id;
 				}
