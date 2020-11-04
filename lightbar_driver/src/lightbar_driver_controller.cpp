@@ -126,7 +126,7 @@ void LightBarController::updateStatus(const std::string& response)
 		{
 			int light_id = std::stoi(light.child("ID").child_value());\
 			// light IDs that are not used
-			if (light_id == 1 || light_id == 7 || light_id == 9 || light_id == 15)
+			if (light_id == 7 || light_id == 15)
 				continue;
 
 			// LightBar hardware http requests/responses assumes 1 as off state.
