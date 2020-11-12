@@ -31,7 +31,7 @@ while [[ $# -gt 0 ]]; do
                   echo "Enter branch name:"
                   BRANCH=$(git rev-parse --abbrev-ref HEAD)
                   if ! echo "$BRANCH" | grep -q "feature/.*"; then
-                        echo "Please switch to a release branch before using the -c option. Exiting script now."
+                        echo "Please switch to a feature branch before using the -c option. Exiting script now."
                         exit 1
                   fi
                   shift
