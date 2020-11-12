@@ -17,7 +17,7 @@
 # CARMA packages checkout script
 # Optional argument to set the root checkout directory with no ending '/' default is '~'
 
-set -eo pipefail
+set -exo pipefail
 
 dir=~
 while [[ $# -gt 0 ]]; do
@@ -25,6 +25,15 @@ while [[ $# -gt 0 ]]; do
       case $arg in
             -d|--develop)
                   BRANCH=develop
+                  shift
+            ;;
+            -c|--candidate)
+                  echo "Enter branch name:"
+                  BRANCH=$(git rev-parse --abbrev-ref HEAD)
+                  if ! echo "$BRANCH" | grep -q "feature/.*"; then
+                        echo "Please switch to a release branch before using the -c option. Exiting script now."
+                        exit 1
+                  fi
                   shift
             ;;
             -r|--root)
@@ -36,9 +45,12 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ "$BRANCH" = "develop" ]]; then
-      git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ~/src/CARMAMsgs --branch $BRANCH --depth 1
-      git clone https://github.com/usdot-fhwa-stol/carma-utils.git ~/src/CARMAUtils --branch $BRANCH --depth 1
+      echo "git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ~/src/CARMAMsgs --branch $BRANCH --depth 1"
+      echo "git clone https://github.com/usdot-fhwa-stol/carma-utils.git ~/src/CARMAUtils --branch $BRANCH --depth 1"
+elif echo "$BRANCH" | grep -q "feature/.*"; then
+      echo "git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ~/src/CARMAMsgs --branch $BRANCH --depth 1"
+      echo "git clone https://github.com/usdot-fhwa-stol/carma-utils.git ~/src/CARMAUtils --branch $BRANCH --depth 1"
 else
-      git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ${dir}/src/CARMAMsgs --branch release/Wanderer --depth 1
-      git clone https://github.com/usdot-fhwa-stol/carma-utils.git ${dir}/src/CARMAUtils --branch release/Wanderer --depth 1
+      echo "git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ${dir}/src/CARMAMsgs --branch release/Wanderer --depth 1"
+      echo "git clone https://github.com/usdot-fhwa-stol/carma-utils.git ${dir}/src/CARMAUtils --branch release/Wanderer --depth 1"
 fi
