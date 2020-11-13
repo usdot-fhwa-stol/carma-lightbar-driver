@@ -46,8 +46,8 @@ while [[ $# -gt 0 ]]; do
             ;;
         -c|--candidate)
             USERNAME=usdotfhwastolcandidate
-            if ! echo "$BRANCH" | grep -q "feature/.*"; then
-                        echo "Please switch to a feature branch before using the -c option. Exiting script now."
+            if ! echo "$BRANCH" | grep -q "release/.*"; then
+                        echo "Please switch to a release branch before using the -c option. Exiting script now."
                         exit 1
             fi
             COMPONENT_VERSION_STRING=$(git rev-parse --abbrev-ref HEAD | cut -d "/" -f 2)
@@ -70,7 +70,7 @@ if [[ $COMPONENT_VERSION_STRING = "develop" ]]; then
         --build-arg VERSION="$COMPONENT_VERSION_STRING" \
         --build-arg VCS_REF=`git rev-parse --short HEAD` \
         --build-arg BUILD_DATE=`date -u +”%Y-%m-%dT%H:%M:%SZ”` .
-elif echo "$BRANCH" | grep -q "feature/.*"; then
+elif echo "$BRANCH" | grep -q "release/.*"; then
     sed "s|usdotfhwastol|$USERNAME|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:$COMPONENT_VERSION_STRING|g; s|checkout.bash|checkout.bash -c|g" \
         Dockerfile | docker build -f - --no-cache -t $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING \
         --build-arg VERSION="$COMPONENT_VERSION_STRING" \

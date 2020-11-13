@@ -30,8 +30,8 @@ while [[ $# -gt 0 ]]; do
             -c|--candidate)
                   echo "Enter branch name:"
                   BRANCH=$(git rev-parse --abbrev-ref HEAD)
-                  if ! echo "$BRANCH" | grep -q "feature/.*"; then
-                        echo "Please switch to a feature branch before using the -c option. Exiting script now."
+                  if ! echo "$BRANCH" | grep -q "release/.*"; then
+                        echo "Please switch to a release branch before using the -c option. Exiting script now."
                         exit 1
                   fi
                   shift
@@ -47,7 +47,7 @@ done
 if [[ "$BRANCH" = "develop" ]]; then
       git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ~/src/CARMAMsgs --branch $BRANCH --depth 1
       git clone https://github.com/usdot-fhwa-stol/carma-utils.git ~/src/CARMAUtils --branch $BRANCH --depth 1
-elif echo "$BRANCH" | grep -q "feature/.*"; then
+elif echo "$BRANCH" | grep -q "release/.*"; then
       git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ~/src/CARMAMsgs --branch $BRANCH --depth 1
       git clone https://github.com/usdot-fhwa-stol/carma-utils.git ~/src/CARMAUtils --branch $BRANCH --depth 1
 else
