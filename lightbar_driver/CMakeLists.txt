@@ -13,11 +13,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
 
+
 find_package(CURL REQUIRED)
 
 find_library(PUGIXML_LIBRARIES
   NAMES pugixml
 )
+
 
 find_path(PUGIXML_INCLUDE_DIRS
   NAMES pugixml.hpp
@@ -30,7 +32,7 @@ find_path(PUGIXML_INCLUDE_DIRS
 
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES lightbar_driver
+  LIBRARIES lightbar_driver
   CATKIN_DEPENDS
   cav_driver_utils
   cav_msgs
@@ -49,12 +51,11 @@ include_directories(
   ${PUGIXML_INCLUDE_DIRS}
 )
 
-file(GLOB_RECURSE headers */*.hpp */*.h)
+
 
 ## Declare a C++ executable
 
 add_executable(${PROJECT_NAME}_node
-                ${headers}
                 src/main.cpp
                 src/lightbar_driver_controller.cpp
                 src/lightbar_driver_application.cpp
@@ -96,19 +97,15 @@ install(TARGETS ${PROJECT_NAME}_node
 )
 
 ## Mark cpp header files for installation
-install(DIRECTORY 
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  PATTERN ".svn" EXCLUDE
-)
+
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-        FILES_MATCHING PATTERN "*.launch"
-        PATTERN ".svn" EXCLUDE)
+)
 
 #############
 ## Testing ##

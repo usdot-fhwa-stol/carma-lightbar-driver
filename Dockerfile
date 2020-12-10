@@ -12,13 +12,13 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-FROM usdotfhwastol/carma-base:3.7.0 as setup
+FROM usdotfhwastol/carma-base:carma-system-3.4.0 as setup
 
 RUN mkdir ~/src
 COPY --chown=carma . /home/carma/src/
-RUN ~/src/docker/checkout.sh
+RUN ~/src/docker/checkout.bash
 RUN ~/src/docker/install.sh
-FROM usdotfhwastol/carma-base:3.7.0
+FROM usdotfhwastol/carma-base:carma-system-3.4.0
 
 ARG BUILD_DATE="NULL"
 ARG VERSION="NULL"
@@ -30,7 +30,7 @@ LABEL org.label-schema.description="nForce Lightbar driver for the CARMA Platfor
 LABEL org.label-schema.vendor="Leidos"
 LABEL org.label-schema.version=${VERSION}
 LABEL org.label-schema.url="https://highways.dot.gov/research/research-programs/operations/CARMA"
-LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/CARMALightbarDriver/"
+LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-lightbar-driver/"
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
