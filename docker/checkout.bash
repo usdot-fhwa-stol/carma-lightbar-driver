@@ -17,7 +17,7 @@
 # CARMA packages checkout script
 # Optional argument to set the root checkout directory with no ending '/' default is '~'
 
-set -eo pipefail
+set -exo pipefail
 
 dir=~
 while [[ $# -gt 0 ]]; do
