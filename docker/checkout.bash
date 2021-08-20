@@ -24,7 +24,7 @@ while [[ $# -gt 0 ]]; do
       arg="$1"
       case $arg in
             -d|--develop)
-                  BRANCH=noetic-develop
+                  BRANCH=noetic/develop
                   shift
             ;;
             -r|--root)
@@ -39,6 +39,6 @@ if [[ "$BRANCH" = "noetic/develop" ]]; then
       git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ~/src/CARMAMsgs --branch $BRANCH --depth 1
       git clone https://github.com/usdot-fhwa-stol/carma-utils.git ~/src/CARMAUtils --branch $BRANCH --depth 1
 else
-      git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ${dir}/src/CARMAMsgs --branch noetic-develop --depth 1
-      git clone https://github.com/usdot-fhwa-stol/carma-utils.git ${dir}/src/CARMAUtils --branch noetic-develop --depth 1
+      git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ${dir}/src/CARMAMsgs --branch noetic/develop --depth 1
+      git clone https://github.com/usdot-fhwa-stol/carma-utils.git ${dir}/src/CARMAUtils --branch noetic/develop --depth 1
 fi
