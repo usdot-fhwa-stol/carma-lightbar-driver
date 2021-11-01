@@ -13,14 +13,14 @@
 #  the License.
 
 
-FROM usdotfhwastolcandidate/carma-base:elise as setup
+FROM usdotfhwastoldev/carma-base:develop as setup
 
 RUN mkdir ~/src
 COPY --chown=carma . /home/carma/src/
 RUN ~/src/docker/checkout.bash
 RUN ~/src/docker/install.sh
 
-FROM usdotfhwastolcandidate/carma-base:elise
+FROM usdotfhwastoldev/carma-base:develop
 
 ARG BUILD_DATE="NULL"
 ARG VERSION="NULL"
