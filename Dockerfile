@@ -13,14 +13,14 @@
 #  the License.
 
 
-FROM usdotfhwastolcandidate/carma-base:fiesta as setup
+FROM usdotfhwastol/carma-base:carma-system-3.11.0 as setup
 
 RUN mkdir ~/src
 COPY --chown=carma . /home/carma/src/
 RUN ~/src/docker/checkout.bash
 RUN ~/src/docker/install.sh
 
-FROM usdotfhwastolcandidate/carma-base:fiesta
+FROM usdotfhwastol/carma-base:carma-system-3.11.0
 
 ARG BUILD_DATE="NULL"
 ARG VERSION="NULL"
