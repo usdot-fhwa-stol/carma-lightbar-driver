@@ -1,3 +1,8 @@
+| CicleCI Build Status | Sonar Code Quality | DockerHub Release | DockerHub Release Candidate | DockerHub Develop |
+|------|-----|-----|-----|-----|
+[![CircleCI](https://img.shields.io/circleci/build/gh/usdot-fhwa-stol/carma-lightbar-driver/develop?label=CircleCI)](https://app.circleci.com/pipelines/github/usdot-fhwa-stol/carma-lightbar-driver?branch=develop) | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_CARMALightbarDriver&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-fhwa-stol_CARMALightbarDriver) | [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/usdotfhwastol/carma-lightbar-driver?label=carma-lightbar-driver)](https://hub.docker.com/repository/docker/usdotfhwastol/carma-ssc-interface-wrapper) | [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/usdotfhwastolcandidate/carma-lightbar-driver?label=carma-lightbar-driver)](https://hub.docker.com/repository/docker/usdotfhwastolcandidate/carma-ssc-interface-wrapper) | [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/usdotfhwastoldev/carma-lightbar-driver?label=carma-lightbar-driver)](https://hub.docker.com/repository/docker/usdotfhwastoldev/carma-ssc-interface-wrapper)
+
+
 # CARMALightbarDriver
 
 CARMALightbarDriver is the driver for use with a ADAM6256 IO Module custom configured Lightbar and the CARMA Platform
