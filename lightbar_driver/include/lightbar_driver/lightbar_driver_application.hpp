@@ -17,13 +17,15 @@
 #ifndef _LIGHTBAR_APPLICATION_H_
 #define _LIGHTBAR_APPLICATION_H_
 
-#include "lightbar_driver/lightbar_driver_controller.h"
+#include "lightbar_driver/lightbar_driver_controller.hpp"
+#include "lightbar_driver/lightbar_driver_config.hpp"
 #include <cav_driver_utils/driver_application/driver_application.h>
-#include <cav_msgs/LightBarStatus.h>
-#include <cav_srvs/GetLights.h>
-#include <cav_srvs/SetLights.h>
-#include <ros/ros.h>
+#include <carma_driver_msgs/msg/light_bar_status.hpp>
+#include <carma_driver_msgs/srv/get_lights.hpp>
+#include <carma_driver_msgs/srv/set_lights.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <vector>
+#include <carma_ros2_utils/carma_lifecycle_node.hpp>
 
 // LightBar Hardware Configuration Default Values
 #define HTTP_HOSTNAME     "192.168.88.28"
@@ -33,41 +35,47 @@
 
 namespace lightbar_driver
 {
-class LightBarApplication: public cav::DriverApplication
+class LightBarApplication :public carma_ros2_utils::CarmaLifecycleNode
 {
 public:
-    LightBarApplication(int argc, char** argv);
-    ~LightBarApplication() {}
+    /**
+     * \brief Constructor
+     */
+    explicit LightBarApplication(const rclcpp::NodeOptions &);
+
+    ////
+    // Overrides
+    ////
+    carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
+
+    carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &);
+
+    carma_driver_msgs::msg::DriverStatus getStatus();
+
+    void setStatus(carma_driver_msgs::msg::DriverStatus status);
+
 private:
-
+    // API
     std::vector<std::string> api_;
+    // Driver Discovery Status 
+    carma_driver_msgs::msg::DriverStatus status_;
 
-     //ROS
-    ros::Publisher lightbar_pub_;
-    ros::ServiceServer get_lights_srv_, set_lights_srv_;
-    ros::WallTimer status_publisher_timer_;
+    Config config_;
+
+    // Publishers
+    carma_ros2_utils::PubPtr<carma_driver_msgs::msg::LightBarStatus> lightbar_pub_;
+    carma_ros2_utils::PubPtr<carma_driver_msgs::msg::DriverStatus> driver_discovery_pub_;
+ 
+     // Timers
+    rclcpp::TimerBase::SharedPtr lightbar_timer_;
+    rclcpp::TimerBase::SharedPtr driver_discovery_timer_;
+
+    // Service Servers
+    carma_ros2_utils::ServicePtr<carma_driver_msgs::srv::GetLights> get_lights_srv_;
+    carma_ros2_utils::ServicePtr<carma_driver_msgs::srv::SetLights> set_lights_srv_;
+    
+    // LightBar Controller Object
     LightBarController lightbar_ctrl_;
-
-    /**
-     * @brief Initializes ROS context for this node
-     *
-     * Establishes the connection to the LightBar hardware. Sets up topics
-     */
-    virtual void initialize() override;
-
-    /**
-     * @brief Called by the base DriverApplication class after spin
-     *
-     * Sends messages from the outgoing queue
-     */
-    virtual void post_spin() override;
-
-    /**
-     * @brief Called by the base DriverApplication class prior to Spin
-     *
-     * Manages local state of hardware device, reconnecting as needed
-     */
-    virtual void pre_spin() override {}
 
      /**
      * @brief Returns the set state of the lights
@@ -79,7 +87,7 @@ private:
      * @param resp
      * @return true always
      */
-    bool getLightsCB(cav_srvs::GetLightsRequest &req, cav_srvs::GetLightsResponse &resp);
+    bool getLightsCB(const std::shared_ptr<rmw_request_id_t>,carma_driver_msgs::srv::GetLights::Request::SharedPtr req, carma_driver_msgs::srv::GetLights::Response::SharedPtr resp);
 
 
     /**
@@ -91,12 +99,17 @@ private:
      * @param resp
      * @return true always
      */
-    bool setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs::SetLightsResponse &resp);
+    bool setLightsCB(const std::shared_ptr<rmw_request_id_t>,carma_driver_msgs::srv::SetLights::Request::SharedPtr req, carma_driver_msgs::srv::SetLights::Response::SharedPtr resp);
 
     /**
      * @brief Timer Callback that updates the lightbar status topic
      */
-    void updateStatusTimerCB(const ros::WallTimerEvent &);
+    void updateStatusTimerCB();
+
+    /**
+     * @brief Timer Callback that updates the driver discovery status topic
+     */
+    void driverDiscoveryCB(); 
 
     /**
      * @brief Called by the base DriverApplication class to fetch this implementation's api

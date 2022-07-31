@@ -1,5 +1,5 @@
 
-# Copyright (C) 2020-2021 LEIDOS.
+# Copyright (C) 2022 LEIDOS.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -13,125 +13,67 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(lightbar_driver)
 
 find_package(carma_cmake_common REQUIRED)
-carma_check_ros_version(1)
+carma_check_ros_version(2)
 carma_package()
 
-## Find catkin macros and libraries
-find_package(catkin REQUIRED COMPONENTS
-  cav_driver_utils
-  cav_msgs
-  roscpp
-)
+## Find dependencies using ament auto
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
+# Name build targets
+set(worker_lib lightbar_driver_controller_lib)
+set(node_exec lightbar_driver_exec)
+set(node_lib lightbar_driver_application_node)
 
-find_package(CURL REQUIRED)
-
-find_library(PUGIXML_LIBRARIES
-  NAMES pugixml
-)
-
-
-find_path(PUGIXML_INCLUDE_DIRS
-  NAMES pugixml.hpp
-  PATH_SUFFIXES pugixml
-)
-
-###################################
-## catkin specific configuration ##
-###################################
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES lightbar_driver
-  CATKIN_DEPENDS
-  cav_driver_utils
-  cav_msgs
-  pugixml
-)
-
-###########
-## Build ##
-###########
-
-## Specify additional locations of header files
+## Includes
 include_directories(
  include
-  ${catkin_INCLUDE_DIRS}
-  ${CURL_INCLUDE_DIRS}
-  ${PUGIXML_INCLUDE_DIRS}
 )
 
-
-
-## Declare a C++ executable
-
-add_executable(${PROJECT_NAME}_node
-                src/main.cpp
-                src/lightbar_driver_controller.cpp
-                src/lightbar_driver_application.cpp
+# Build
+ament_auto_add_library(${worker_lib}
+        src/lightbar_driver_controller.cpp
 )
-add_library(${PROJECT_NAME}_lib
-                src/main.cpp
-                src/lightbar_driver_controller.cpp
-                src/lightbar_driver_application.cpp
+ament_auto_add_library(${node_lib} SHARED
+        src/lightbar_driver_application.cpp
 )
 
-## Add cmake target dependencies of the executable
-add_dependencies(${PROJECT_NAME}_node 
-                ${catkin_EXPORTED_TARGETS}
-)
-add_dependencies(${PROJECT_NAME}_lib
-                ${catkin_EXPORTED_TARGETS}
-) 
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node 
-                ${catkin_LIBRARIES}
-                ${CURL_LIBRARIES} 
-                ${PUGIXML_LIBRARIES} 
-)
-target_link_libraries(${PROJECT_NAME}_lib 
-                ${catkin_LIBRARIES}
-                ${CURL_LIBRARIES} 
-                ${PUGIXML_LIBRARIES} 
-)
-#############
-## Install ##
-#############
-
-## Mark executables and/or libraries for installation
-install(TARGETS ${PROJECT_NAME}_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ament_auto_add_executable(${node_exec} 
+        src/main.cpp 
 )
 
-## Mark cpp header files for installation
+# Register component
+rclcpp_components_register_nodes(${node_lib} "lightbar_driver::LightBarApplication")
 
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-install(DIRECTORY launch/
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+# All locally created targets will need to be manually linked
+# ament auto will handle linking of external dependencies
+target_link_libraries(${node_lib}
+        ${worker_lib}
 )
 
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-catkin_add_gtest(${PROJECT_NAME}-test 
-  test/test_lightbar_driver_controller.cpp
-  test/test_main.cpp
+target_link_libraries(${node_exec}
+        ${node_lib}
 )
 
-if(TARGET ${PROJECT_NAME}-test)
-  target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME}_lib ${catkin_LIBRARIES})
+# Testing
+if(BUILD_TESTING)  
+
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies() # This populates the ${${PROJECT_NAME}_FOUND_TEST_DEPENDS} variable
+
+  ament_add_gtest(test_lightbar_driver_controller test/test_lightbar_driver_controller.cpp)
+
+  ament_target_dependencies(test_lightbar_driver_controller ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
+
+  target_link_libraries(test_lightbar_driver_controller ${node_lib})
 endif()
+
+# Install
+ament_auto_package(
+        INSTALL_TO_SHARE launch
+)
 
