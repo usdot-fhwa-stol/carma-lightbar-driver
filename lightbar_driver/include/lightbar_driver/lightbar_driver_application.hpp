@@ -19,7 +19,7 @@
 
 #include "lightbar_driver/lightbar_driver_controller.hpp"
 #include "lightbar_driver/lightbar_driver_config.hpp"
-#include <cav_driver_utils/driver_application/driver_application.h>
+#include <carma_driver_msgs/msg/driver_status.hpp>
 #include <carma_driver_msgs/msg/light_bar_status.hpp>
 #include <carma_driver_msgs/srv/get_lights.hpp>
 #include <carma_driver_msgs/srv/set_lights.hpp>
@@ -119,7 +119,7 @@ private:
      *
      * @return list of api
      */
-    inline virtual std::vector<std::string>& get_api() override  { return api_; }
+    inline std::vector<std::string>& get_api()   { return api_; }
 
 };
 

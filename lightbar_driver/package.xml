@@ -17,14 +17,12 @@
   <name>lightbar_driver</name>
   <description>The lightbar_driver package</description>
   <version>4.0.0</version>
-  <buildtool_depend>catkin</buildtool_depend>
   <license>APACHE 2.0</license>
   <maintainer email="carma@dot.gov">carma</maintainer>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <build_depend>carma_cmake_common</build_depend>
   <build_depend>ament_auto_cmake</build_depend>
-  <depend>cav_driver_utils</depend>
 
   <depend>rclcpp</depend>
   <depend>carma_ros2_utils</depend>

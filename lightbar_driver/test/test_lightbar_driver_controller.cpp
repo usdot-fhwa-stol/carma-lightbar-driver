@@ -14,7 +14,7 @@
  * the License.
  */
 
-
+#include <rclcpp/rclcpp.hpp>
 #include <gtest/gtest.h>
 #include <lightbar_driver/lightbar_driver_controller.hpp>
 
