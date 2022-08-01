@@ -44,7 +44,6 @@ set(node_lib lightbar_driver_application_node)
 ## Specify additional locations of header files
 include_directories(
  include
-  ${catkin_INCLUDE_DIRS}
   ${CURL_INCLUDE_DIRS}
   ${PUGIXML_INCLUDE_DIRS}
 )
@@ -68,10 +67,14 @@ rclcpp_components_register_nodes(${node_lib} "lightbar_driver::LightBarApplicati
 # ament auto will handle linking of external dependencies
 target_link_libraries(${node_lib}
         ${worker_lib}
+        ${CURL_LIBRARIES} 
+        ${PUGIXML_LIBRARIES} 
 )
 
 target_link_libraries(${node_exec}
         ${node_lib}
+        ${CURL_LIBRARIES} 
+        ${PUGIXML_LIBRARIES} 
 )
 
 # Testing
