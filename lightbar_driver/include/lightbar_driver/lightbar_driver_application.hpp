@@ -27,12 +27,6 @@
 #include <vector>
 #include <carma_ros2_utils/carma_lifecycle_node.hpp>
 
-// LightBar Hardware Configuration Default Values
-#define HTTP_HOSTNAME     "192.168.88.28"
-#define HTTP_PORT         (80)
-#define HTTP_USER         ""
-#define HTTP_PASSWORD     ""
-
 namespace lightbar_driver
 {
 class LightBarApplication :public carma_ros2_utils::CarmaLifecycleNode

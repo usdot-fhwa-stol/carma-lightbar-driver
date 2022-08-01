@@ -20,6 +20,18 @@ find_package(carma_cmake_common REQUIRED)
 carma_check_ros_version(2)
 carma_package()
 
+find_package(CURL REQUIRED)
+
+find_library(PUGIXML_LIBRARIES
+  NAMES pugixml
+)
+
+
+find_path(PUGIXML_INCLUDE_DIRS
+  NAMES pugixml.hpp
+  PATH_SUFFIXES pugixml
+)
+
 ## Find dependencies using ament auto
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
@@ -29,9 +41,12 @@ set(worker_lib lightbar_driver_controller_lib)
 set(node_exec lightbar_driver_exec)
 set(node_lib lightbar_driver_application_node)
 
-## Includes
+## Specify additional locations of header files
 include_directories(
  include
+  ${catkin_INCLUDE_DIRS}
+  ${CURL_INCLUDE_DIRS}
+  ${PUGIXML_INCLUDE_DIRS}
 )
 
 # Build
