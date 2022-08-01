@@ -34,8 +34,6 @@ namespace lightbar_driver
     config_.password = declare_parameter<std::string>("password", config_.password);
     config_.status_update_rate = declare_parameter<int>("status_update_rate", config_.status_update_rate);
 
-    lightbar_ctrl_.configureHTTP(host_name,port,user,password);
-
     carma_driver_msgs::msg::DriverStatus status;
     status.status = carma_driver_msgs::msg::DriverStatus::OFF;
     status.lightbar = true;
@@ -45,6 +43,9 @@ namespace lightbar_driver
 
   carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_configure(const rclcpp_lifecycle::State &)
   {
+
+    lightbar_ctrl_.configureHTTP(host_name,port,user,password);
+
     // Setup the ROS API
     api_.clear();
 
@@ -62,7 +63,6 @@ namespace lightbar_driver
     set_lights_srv_ = create_service<carma_driver_msgs::srv::SetLights>("set_lights",
                                                             std::bind(&LightBarApplication::setLightsCB, this, std_ph::_1, std_ph::_2, std_ph::_3));
     api_.push_back(set_lights_srv_.getService());
-
 
     // LightbarController starts at OFF state, but make sure hardware is too.
     // Acts as a dummy request.
@@ -93,11 +93,11 @@ namespace lightbar_driver
 carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_activate(const rclcpp_lifecycle::State &prev_state)
  {
         //Timer setup - Light Bar
-        lightbar_timer_ = this->create_wall_timer(std::chrono::milliseconds(500), 
+        lightbar_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000/config_.status_update_rate), 
         std::bind(&LightBarApplication::updateStatusTimerCB, this));
 
         //Timer setup - Driver Discovery
-        driver_discovery_timer_ = this->create_wall_timer(std::chrono::milliseconds(500), 
+        driver_discovery_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000), 
         std::bind(&LightBarApplication::driverDiscoveryCB, this));
         
         return CallbackReturn::SUCCESS;

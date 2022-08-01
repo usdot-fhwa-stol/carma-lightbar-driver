@@ -52,7 +52,7 @@ public:
 
     carma_driver_msgs::msg::DriverStatus getStatus();
 
-    void setStatus(carma_driver_msgs::msg::DriverStatus status);
+    void setStatus(const carma_driver_msgs::msg::DriverStatus status);
 
 private:
     // API
