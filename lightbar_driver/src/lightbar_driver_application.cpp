@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 LEIDOS.
+ * Copyright (C) 2022 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,40 +14,64 @@
  * the License.
  */
 
-#include "lightbar_driver/lightbar_driver_application.h"
-#include <ros/ros.h>
+#include "lightbar_driver/lightbar_driver_application.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 namespace lightbar_driver
 {
+  namespace std_ph = std::placeholders;
 
-LightBarApplication::LightBarApplication(int argc, char **argv) : cav::DriverApplication(argc, argv, "lightbar")
-{
-    cav_msgs::DriverStatus status;
-    status.status = cav_msgs::DriverStatus::OFF;
+  LightBarApplication::LightBarApplication(const rclcpp::NodeOptions &options)
+      : carma_ros2_utils::CarmaLifecycleNode(options)
+  {
+    // Create initial config
+    config_ = Config();
+ 
+    // Configure HTTP parameters of the controller
+    config_.host_name = declare_parameter<std::string>("host_name", config_.host_name);
+    config_.port = declare_parameter<int>("port", config_.port);
+    config_.user = declare_parameter<std::string>("user", config_.user);
+    config_.password = declare_parameter<std::string>("password", config_.password);
+    config_.status_update_rate = declare_parameter<int>("status_update_rate", config_.status_update_rate);
+
+    carma_driver_msgs::msg::DriverStatus status;
+    status.status = carma_driver_msgs::msg::DriverStatus::OFF;
     status.lightbar = true;
     setStatus(status);
-    ROS_INFO_STREAM("LightBar Driver Started!");
-}
+    RCLCPP_INFO_STREAM(get_logger(),"LightBar Driver Started!");
+  }
 
-void LightBarApplication::initialize() 
-{
-    // Initialize
-    nh_.reset(new ros::NodeHandle("lightbar"));
+  carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_configure(const rclcpp_lifecycle::State &)
+  {
 
-    // Configure HTTP parameters of the controller
-    std::string host_name;
-    nh_->param<std::string>("host_name", host_name, HTTP_HOSTNAME);
-    int port;
-    nh_->param<int>("port", port, HTTP_PORT);
-    std::string user;
-    nh_->param<std::string>("user", user, HTTP_USER);
-    std::string password;
-    nh_->param<std::string>("password", password, HTTP_PASSWORD);
-    int status_update_rate;
-    nh_->param<int>("status_update_rate", status_update_rate, 2);
+    config_ = Config();
 
-    lightbar_ctrl_.configureHTTP(host_name,port,user,password);
-    
+    get_parameter<std::string>("host_name", config_.host_name);
+    get_parameter<int>("port", config_.port);
+    get_parameter<std::string>("user", config_.user);
+    get_parameter<std::string>("password", config_.password);
+    get_parameter<int>("status_update_rate", config_.status_update_rate);
+
+    lightbar_ctrl_.configureHTTP( config_.host_name,config_.port,config_.user,config_.password);
+
+    // Setup the ROS API
+    api_.clear();
+
+    // Setup Publisher 
+    driver_discovery_pub_ = create_publisher<carma_driver_msgs::msg::DriverStatus>("driver_discovery", 1);
+    api_.push_back(driver_discovery_pub_->get_topic_name());
+    lightbar_pub_ = create_publisher<carma_driver_msgs::msg::LightBarStatus>("light_bar_status", 1);
+    api_.push_back(lightbar_pub_->get_topic_name());
+
+    // Setup service servers
+    get_lights_srv_= create_service<carma_driver_msgs::srv::GetLights>("get_lights",
+                                                            std::bind(&LightBarApplication::getLightsCB, this, std_ph::_1, std_ph::_2, std_ph::_3));
+    api_.push_back(get_lights_srv_->get_service_name());
+  
+    set_lights_srv_ = create_service<carma_driver_msgs::srv::SetLights>("set_lights",
+                                                            std::bind(&LightBarApplication::setLightsCB, this, std_ph::_1, std_ph::_2, std_ph::_3));
+    api_.push_back(set_lights_srv_->get_service_name());
+
     // LightbarController starts at OFF state, but make sure hardware is too.
     // Acts as a dummy request.
     try
@@ -56,42 +80,40 @@ void LightBarApplication::initialize()
     }
     catch (CURL_EASY_PERFORM_ERROR& e)
     {
-        ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("When starting lightbar driver, could not connect to the lightbar IP: " + host_name);
-        cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::FAULT;
+        RCLCPP_WARN_STREAM(get_logger(),e.what());
+        RCLCPP_WARN_STREAM(get_logger(),"When starting lightbar driver, could not connect to the lightbar IP: " + config_.host_name);
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::FAULT;
         setStatus(status);
-        return;
+        return CallbackReturn::ERROR;
     }
+  
+    // Return success if everthing initialized successfully
+    return CallbackReturn::SUCCESS;
+  } 
 
-    // Setup the ROS API
-    api_.clear();
     
-    // Topics 
-    lightbar_pub_ = nh_->advertise<cav_msgs::LightBarStatus>("light_bar_status", 10);
-    api_.push_back(lightbar_pub_.getTopic());
+carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_activate(const rclcpp_lifecycle::State &prev_state)
+ {
+        //Timer setup - Light Bar
+        lightbar_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000/config_.status_update_rate), 
+        std::bind(&LightBarApplication::updateStatusTimerCB, this));
 
-    // Services
-    get_lights_srv_ = nh_->advertiseService("get_lights", &LightBarApplication::getLightsCB, this);
-    api_.push_back(get_lights_srv_.getService());
+        //Timer setup - Driver Discovery
+        driver_discovery_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000), 
+        std::bind(&LightBarApplication::driverDiscoveryCB, this));
 
-    set_lights_srv_ = nh_->advertiseService("set_lights", &LightBarApplication::setLightsCB, this);
-    api_.push_back(set_lights_srv_.getService());
-
-    // Timer loop
-    status_publisher_timer_ = nh_->createWallTimer(ros::WallDuration(ros::Rate(status_update_rate)),&LightBarApplication::updateStatusTimerCB, this);
-    status_publisher_timer_.start();
-
-    // Driver Status set to Operational
-    cav_msgs::DriverStatus status = getStatus();
-    status.status = cav_msgs::DriverStatus::OPERATIONAL;
-    setStatus(status);
-    
-}
-
-bool LightBarApplication::getLightsCB(cav_srvs::GetLightsRequest&, cav_srvs::GetLightsResponse &resp) {
-    static auto ON = static_cast<cav_msgs::LightBarStatus::_flash_type>(cav_msgs::LightBarStatus::ON);
-    static auto OFF = static_cast<cav_msgs::LightBarStatus::_flash_type>(cav_msgs::LightBarStatus::OFF);
+        // Driver Status set to Operational
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::OPERATIONAL;
+        setStatus(status);
+        
+        return CallbackReturn::SUCCESS;
+ }
+ 
+bool LightBarApplication::getLightsCB(const std::shared_ptr<rmw_request_id_t>,carma_driver_msgs::srv::GetLights::Request::SharedPtr req, carma_driver_msgs::srv::GetLights::Response::SharedPtr resp) {
+    static auto ON = static_cast<carma_driver_msgs::msg::LightBarStatus::_flash_type>(carma_driver_msgs::msg::LightBarStatus::ON);
+    static auto OFF = static_cast<carma_driver_msgs::msg::LightBarStatus::_flash_type>(carma_driver_msgs::msg::LightBarStatus::OFF);
     
     // TODO (Optional) Make LightBarStatus service to accept LightBarID (front or back)
     // to give back status. With current design, we keep both lightbars with same state.
@@ -102,39 +124,39 @@ bool LightBarApplication::getLightsCB(cav_srvs::GetLightsRequest&, cav_srvs::Get
     }
     catch(CURL_EASY_PERFORM_ERROR& e)
     {
-        ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states.");
-        cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::FAULT;
+        RCLCPP_WARN_STREAM(get_logger(),e.what());
+        RCLCPP_WARN_STREAM(get_logger(),"The lightbar driver could not connect to lightbar to get light states.");
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
     catch(PARSE_ERROR& e)
     {
-        ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP.");
-        cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::FAULT;
+        RCLCPP_WARN_STREAM(get_logger(),e.what());
+        RCLCPP_WARN_STREAM(get_logger(),"Couldn't parse lightbar response from the IP.");
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
     
     //LightBar curr_back = lightbar_ctrl_.getState(BACK_ID);
 
-    resp.status.yellow_solid    = curr_front.light_by_id[kYellowDimOn]   ? ON : OFF;
-    resp.status.left_arrow  = curr_front.light_by_id[kLeftArrowOn]       ? ON : OFF;
-    resp.status.right_arrow = curr_front.light_by_id[kRightArrowOn]      ? ON : OFF;
-    resp.status.green_solid = curr_front.light_by_id[kGreenSolidOn]      ? ON : OFF;
-    resp.status.green_flash = curr_front.light_by_id[kGreenFlashOn]      ? ON : OFF;
-    resp.status.flash = curr_front.light_by_id[kYellowFlashOn]           ? ON : OFF;
-    resp.status.sides_solid = curr_front.light_by_id[kYellowSidesOn]     ? ON : OFF;
+    resp->status.yellow_solid    = curr_front.light_by_id[kYellowDimOn]   ? ON : OFF;
+    resp->status.left_arrow  = curr_front.light_by_id[kLeftArrowOn]       ? ON : OFF;
+    resp->status.right_arrow = curr_front.light_by_id[kRightArrowOn]      ? ON : OFF;
+    resp->status.green_solid = curr_front.light_by_id[kGreenSolidOn]      ? ON : OFF;
+    resp->status.green_flash = curr_front.light_by_id[kGreenFlashOn]      ? ON : OFF;
+    resp->status.flash = curr_front.light_by_id[kYellowFlashOn]           ? ON : OFF;
+    resp->status.sides_solid = curr_front.light_by_id[kYellowSidesOn]     ? ON : OFF;
 
     return true;
 }
 
-bool LightBarApplication::setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs::SetLightsResponse&) 
+bool LightBarApplication::setLightsCB(const std::shared_ptr<rmw_request_id_t>,carma_driver_msgs::srv::SetLights::Request::SharedPtr req, carma_driver_msgs::srv::SetLights::Response::SharedPtr resp) 
 {
-    using cav_msgs::LightBarStatus;
+    using carma_driver_msgs::msg::LightBarStatus;
     LightBar curr_front;
 
     // TODO (Optional) Make LightBarStatus service to accept LightBarID (front or back)
@@ -147,30 +169,30 @@ bool LightBarApplication::setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs:
     }
     catch(CURL_EASY_PERFORM_ERROR& e)
     {
-        ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states.");
-        cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::FAULT;
+        RCLCPP_WARN_STREAM(get_logger(),e.what());
+        RCLCPP_WARN_STREAM(get_logger(),"The lightbar driver could not connect to lightbar to get light states.");
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
     catch(PARSE_ERROR& e)
     {
-        ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP.");
-        cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::FAULT;
+        RCLCPP_WARN_STREAM(get_logger(),e.what());
+        RCLCPP_WARN_STREAM(get_logger(),"Couldn't parse lightbar response from the IP.");
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
 
-    curr_front.light_by_id[kYellowDimOn]  = req.set_state.yellow_solid   == LightBarStatus::ON;
-    curr_front.light_by_id[kLeftArrowOn]  = req.set_state.left_arrow     == LightBarStatus::ON;
-    curr_front.light_by_id[kRightArrowOn] = req.set_state.right_arrow    == LightBarStatus::ON;
-    curr_front.light_by_id[kGreenSolidOn] = req.set_state.green_solid    == LightBarStatus::ON;
-    curr_front.light_by_id[kGreenFlashOn] = req.set_state.green_flash    == LightBarStatus::ON;
-    curr_front.light_by_id[kYellowFlashOn]= req.set_state.flash          == LightBarStatus::ON;
-    curr_front.light_by_id[kYellowSidesOn]= req.set_state.sides_solid    == LightBarStatus::ON;
+    curr_front.light_by_id[kYellowDimOn]  = req->set_state.yellow_solid   == LightBarStatus::ON;
+    curr_front.light_by_id[kLeftArrowOn]  = req->set_state.left_arrow     == LightBarStatus::ON;
+    curr_front.light_by_id[kRightArrowOn] = req->set_state.right_arrow    == LightBarStatus::ON;
+    curr_front.light_by_id[kGreenSolidOn] = req->set_state.green_solid    == LightBarStatus::ON;
+    curr_front.light_by_id[kGreenFlashOn] = req->set_state.green_flash    == LightBarStatus::ON;
+    curr_front.light_by_id[kYellowFlashOn]= req->set_state.flash          == LightBarStatus::ON;
+    curr_front.light_by_id[kYellowSidesOn]= req->set_state.sides_solid    == LightBarStatus::ON;
 
     try
     {
@@ -180,19 +202,20 @@ bool LightBarApplication::setLightsCB(cav_srvs::SetLightsRequest &req, cav_srvs:
     }
     catch(CURL_EASY_PERFORM_ERROR& e)
     {
-        ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar while trying to set states.");
-        cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::FAULT;
+        RCLCPP_WARN_STREAM(get_logger(), e.what());
+        RCLCPP_WARN_STREAM(get_logger(),"The lightbar driver could not connect to lightbar while trying to set states.");
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::FAULT;
         setStatus(status);
         return false;
     }
 
     return true;
 }
-void LightBarApplication::updateStatusTimerCB(const ros::WallTimerEvent &) 
+
+void LightBarApplication::updateStatusTimerCB() 
 {
-    cav_msgs::LightBarStatus light_bar_msg;
+    carma_driver_msgs::msg::LightBarStatus light_bar_msg;
     LightBar curr_front;
     // With current design, basing the lightbar status only off of front lightbar.
     try
@@ -202,19 +225,19 @@ void LightBarApplication::updateStatusTimerCB(const ros::WallTimerEvent &)
     }
     catch(CURL_EASY_PERFORM_ERROR& e)
     {
-        ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("The lightbar driver could not connect to lightbar to get light states.");
-        cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::FAULT;
+        RCLCPP_WARN_STREAM(get_logger(),e.what());
+        RCLCPP_WARN_STREAM(get_logger(),"The lightbar driver could not connect to lightbar to get light states.");
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::FAULT;
         setStatus(status);
         return;
     }
     catch(PARSE_ERROR& e)
     {
-        ROS_WARN_STREAM(e.what());
-        ROS_WARN_STREAM("Couldn't parse lightbar response from the IP.");
-        cav_msgs::DriverStatus status = getStatus();
-        status.status = cav_msgs::DriverStatus::FAULT;
+        RCLCPP_WARN_STREAM(get_logger(),e.what());
+        RCLCPP_WARN_STREAM(get_logger(),"Couldn't parse lightbar response from the IP.");
+        carma_driver_msgs::msg::DriverStatus status = getStatus();
+        status.status = carma_driver_msgs::msg::DriverStatus::FAULT;
         setStatus(status);
         return;
     }
@@ -226,15 +249,35 @@ void LightBarApplication::updateStatusTimerCB(const ros::WallTimerEvent &)
     light_bar_msg.flash         = curr_front.light_by_id[kYellowFlashOn];         
     light_bar_msg.sides_solid   = curr_front.light_by_id[kYellowSidesOn];   
 
-    lightbar_pub_.publish(light_bar_msg); 
-}
+    lightbar_pub_->publish(light_bar_msg);
 
-void LightBarApplication::post_spin() 
-{
     // bypassing any diagnostic and error handling stuff
     auto status = getStatus();
-    status.status = cav_msgs::DriverStatus::OPERATIONAL;
-    setStatus(status);
+    status.status = carma_driver_msgs::msg::DriverStatus::OPERATIONAL;
+    setStatus(status); 
+}
+
+void LightBarApplication::driverDiscoveryCB() 
+{
+    auto driver_status = getStatus();
+    driver_discovery_pub_->publish(driver_status); 
+}
+
+carma_driver_msgs::msg::DriverStatus LightBarApplication::getStatus()
+{
+ return status_;
+}
+
+void LightBarApplication::setStatus(carma_driver_msgs::msg::DriverStatus status)
+{
+ status_ = status;
 }
 
 } // namespace lightbar_driver
+
+#include "rclcpp_components/register_node_macro.hpp"
+
+// Register the component with class_loader
+RCLCPP_COMPONENTS_REGISTER_NODE(lightbar_driver::LightBarApplication)
+
+

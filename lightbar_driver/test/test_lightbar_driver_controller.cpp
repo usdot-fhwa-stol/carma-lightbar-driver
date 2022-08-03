@@ -14,9 +14,9 @@
  * the License.
  */
 
-
+#include <rclcpp/rclcpp.hpp>
 #include <gtest/gtest.h>
-#include <lightbar_driver/lightbar_driver_controller.h>
+#include <lightbar_driver/lightbar_driver_controller.hpp>
 
 namespace lightbar_driver
 {
@@ -113,7 +113,20 @@ TEST (UpdateStatusTest, test1)
 
 } //namespace lightbar_driver
 
+int main(int argc, char ** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
 
+    //Initialize ROS
+    rclcpp::init(argc, argv);
+
+    bool success = RUN_ALL_TESTS();
+
+    //shutdown ROS
+    rclcpp::shutdown();
+
+    return success;
+} 
 
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 LEIDOS.
+ * Copyright (C) 2019-2022 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,7 +14,6 @@
  * the License.
  */
 
-
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,8 +26,8 @@
 #include <curl/curl.h>
 #include <exception>
 
-#include "lightbar_driver/lightbar_driver_controller.h"
-#include "lightbar_driver/lightbar_driver_application.h"
+#include "lightbar_driver/lightbar_driver_controller.hpp"
+#include "lightbar_driver/lightbar_driver_application.hpp"
 #include <pugixml.hpp>
 
 namespace lightbar_driver
