@@ -22,7 +22,6 @@ from carma_ros2_utils.launch.get_current_namespace import GetCurrentNamespace
 
 import os
 
-
 '''
 This file is can be used to launch the lightbar_driver.
   Though in carma-platform it may be launched directly from the base launch file.
@@ -34,6 +33,19 @@ def generate_launch_description():
     log_level = LaunchConfiguration('log_level')
     declare_log_level_arg = DeclareLaunchArgument(
         name ='log_level', default_value='WARN')
+
+    # Args for driver
+    host_name = LaunchConfiguration('host_name')
+    declare_host_name = DeclareLaunchArgument(name = 'host_name', default_value = '192.168.88.28', description="Custom configured IP of the lightbar on all cars")
+
+    port = LaunchConfiguration('port')
+    declare_port = DeclareLaunchArgument(name = 'port', default_value = '80', description="Custom configured IP port of the lightbar on all cars.")
+
+    auth_config_file = LaunchConfiguration('auth_config_file')
+    declare_auth_config_file = DeclareLaunchArgument(name = 'auth_config_file', default_value = '/opt/carma/vehicle/calibration/lightbar/auth_config.yaml', description="File containing Username and Password for the Lightbar IP")
+ 
+    status_update_rate = LaunchConfiguration('status_update_rate')
+    declare_status_update_rate = DeclareLaunchArgument(name = 'status_update_rate', default_value = '2', description="Rate (in sec) at which lighbar will publish to light_bar_status topic")
         
     # Launch node(s) in a carma container to allow logging to be configured
     container = ComposableNodeContainer(
@@ -52,11 +64,12 @@ def generate_launch_description():
                         {'use_intra_process_comms': True},
                         {'--log-level' : log_level }
                     ],
+                    parameters=[ ]
             ),
         ]
     )
 
     return LaunchDescription([
-        declare_log_level_arg,
+        declare_log_level_arg,declare_host_name,declare_port,declare_auth_config_file,declare_status_update_rate
         container
     ])
