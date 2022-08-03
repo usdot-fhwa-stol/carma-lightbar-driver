@@ -64,7 +64,7 @@ def generate_launch_description():
                         {'use_intra_process_comms': True},
                         {'--log-level' : log_level }
                     ],
-                    parameters=['log_level','host_name','port','auth_config_file','status_update_rate' ]
+                    parameters=['host_name','port','auth_config_file','status_update_rate' ]
             ),
         ]
     )
