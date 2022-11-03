@@ -28,7 +28,7 @@ jobs:
     # Pull docker image from docker hub
     # XTERM used for better catkin_make output
     docker:
-      - image: usdotfhwastoldev/carma-base:develop
+      - image: usdotfhwastoldev/carma-base:compilation-database
         user: carma
         environment:
           TERM: xterm # use xterm to get full display output from build
@@ -54,7 +54,8 @@ jobs:
           name: Build Driver
           command: |
             source ${INIT_ENV}
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output bash make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+            source /opt/ros/foxy/setup.bash
+            make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
       - run:
           name: Run C++ Tests
           command: |
