@@ -22,3 +22,75 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
+
+name: CI
+on:
+  push:
+  pull_request:
+      types: [opened, synchronize, reopened]
+jobs:
+  build:
+    defaults:
+      run:
+        shell: bash
+        working-directory: "/opt/carma/"
+    runs-on: ubuntu-latest
+    container:
+      image: usdotfhwastoldev/carma-base:develop
+      env:
+        INIT_ENV: "/home/carma/.base-image/init-env.sh"
+        TERM: xterm
+      options: "--user root"
+    steps:
+    - name: Checkout ${{ github.event.repository.name }}
+      uses: actions/checkout@v3.3.0
+      with:
+        fetch-depth: 0
+        path: src/${{ github.event.repository.name }}
+    - name: Checkout autoware.ai
+      uses: actions/checkout@v3.3.0
+      with:
+        repository: usdot-fhwa-stol/autoware.ai
+        path: src/autoware.ai
+    - name: Checkout carma-utils
+      uses: actions/checkout@v3.3.0
+      with:
+        repository: usdot-fhwa-stol/carma-utils
+        path: src/carma-utils
+    - name: Checkout carma-msgs
+      uses: actions/checkout@v3.3.0
+      with:
+        repository: usdot-fhwa-stol/carma-msgs
+        path: src/carma-msgs
+    - name: Move source code
+      run: mv $GITHUB_WORKSPACE/src /opt/carma/
+    - name: Build
+      run: |
+        source "$INIT_ENV"
+        sed -i '/colcon build/ s/$/ --packages-up-to lightbar_driver/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+    - name: Run C++ Tests
+      run: |
+        source "$INIT_ENV"
+        sed -i '/colcon test/ s/$/ --packages-up-to lightbar_driver/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
+    #- name: Run SonarScanner
+      #uses: usdot-fhwa-stol/actions/sonar-scanner@main
+      #with:
+        #sonar-token: ${{ secrets.SONAR_TOKEN }}
+        #working-dir: "/opt/carma/src/${{ github.event.repository.name }}"
+      - uses: actions/checkout@v3
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master # Using this GitHub Action, scan your code with SonarCloud to detects bugs, vulnerabilities and code smells in more than 20 programming languages!
+        with:
+          args: >
+            -Dsonar.projectKey=usdot-fhwa-stol_CARMALightbarDriver
+            -Dsonar.projectName=CARMALightbarDriver
+            -Dsonar.organization=usdot-fhwa-stol
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.verbose=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}        
