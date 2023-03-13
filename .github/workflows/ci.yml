@@ -1,30 +1,3 @@
-name: "CI: carma-lightbar-drive"
-
-on:
-  push:
-jobs:
-  sonar:
-    runs-on: ubuntu-latest
-    container:
-      image: usdotfhwastoldev/carma-base:develop
-      options: --user root
-    steps:
-      - uses: actions/checkout@v3
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master # Using this GitHub Action, scan your code with SonarCloud to detects bugs, vulnerabilities and code smells in more than 20 programming languages!
-        with:
-          args: >
-            -Dsonar.projectKey=usdot-fhwa-stol_CARMALightbarDriver
-            -Dsonar.projectName=CARMALightbarDriver
-            -Dsonar.organization=usdot-fhwa-stol
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.verbose=true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-
-
 name: CI
 on:
   push:
@@ -81,16 +54,15 @@ jobs:
       #with:
         #sonar-token: ${{ secrets.SONAR_TOKEN }}
         #working-dir: "/opt/carma/src/${{ github.event.repository.name }}"
-      - uses: actions/checkout@v3
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master # Using this GitHub Action, scan your code with SonarCloud to detects bugs, vulnerabilities and code smells in more than 20 programming languages!
-        with:
-          args: >
-            -Dsonar.projectKey=usdot-fhwa-stol_CARMALightbarDriver
-            -Dsonar.projectName=CARMALightbarDriver
-            -Dsonar.organization=usdot-fhwa-stol
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.verbose=true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}        
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master # Using this GitHub Action, scan your code with SonarCloud to detects bugs, vulnerabilities and code smells in more than 20 programming languages!
+      with:
+        args: >
+          -Dsonar.projectKey=usdot-fhwa-stol_CARMALightbarDriver
+          -Dsonar.projectName=CARMALightbarDriver
+          -Dsonar.organization=usdot-fhwa-stol
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.verbose=true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}        
