@@ -52,12 +52,7 @@ jobs:
     - name: Run SonarScanner
       uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
-        args: >
-          -Dsonar.projectKey=usdot-fhwa-stol_CARMALightbarDriver
-          -Dsonar.projectName=CARMALightbarDriver
-          -Dsonar.organization=usdot-fhwa-stol
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.verbose=true
-      env:
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+        working-dir: "/opt/carma/src/${{ github.event.repository.name }}"      
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}        
