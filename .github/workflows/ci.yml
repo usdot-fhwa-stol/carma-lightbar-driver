@@ -49,13 +49,8 @@ jobs:
         source "$INIT_ENV"
         sed -i '/colcon test/ s/$/ --packages-up-to lightbar_driver/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
-    #- name: Run SonarScanner
-      #uses: usdot-fhwa-stol/actions/sonar-scanner@main
-      #with:
-        #sonar-token: ${{ secrets.SONAR_TOKEN }}
-        #working-dir: "/opt/carma/src/${{ github.event.repository.name }}"
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master # Using this GitHub Action, scan your code with SonarCloud to detects bugs, vulnerabilities and code smells in more than 20 programming languages!
+    - name: Run SonarScanner
+      uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
         args: >
           -Dsonar.projectKey=usdot-fhwa-stol_CARMALightbarDriver
