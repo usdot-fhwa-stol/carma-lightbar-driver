@@ -13,7 +13,7 @@
 #  the License.
 
 
-FROM usdotfhwastol/carma-base:carma-system-4.4.0 as setup
+FROM usdotfhwastoldev/carma-base:develop as setup
 
 ARG ROS1_PACKAGES=""
 ENV ROS1_PACKAGES=${ROS1_PACKAGES}
@@ -25,7 +25,7 @@ COPY --chown=carma . /home/carma/src/
 RUN ~/src/docker/checkout.bash
 RUN ~/src/docker/install.sh
 
-FROM usdotfhwastol/carma-base:carma-system-4.4.0
+FROM usdotfhwastoldev/carma-base:develop
 
 ARG BUILD_DATE="NULL"
 ARG VERSION="NULL"
