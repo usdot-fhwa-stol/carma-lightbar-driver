@@ -13,7 +13,7 @@
 #  the License.
 
 
-FROM usdotfhwastolcandidate/carma-base:lavida as setup
+FROM usdotfhwastol/carma-base:carma-system-4.5.0 as setup
 
 ARG ROS1_PACKAGES=""
 ENV ROS1_PACKAGES=${ROS1_PACKAGES}
@@ -25,7 +25,7 @@ COPY --chown=carma . /home/carma/src/
 RUN ~/src/docker/checkout.bash
 RUN ~/src/docker/install.sh
 
-FROM usdotfhwastolcandidate/carma-base:lavida
+FROM usdotfhwastol/carma-base:carma-system-4.5.0
 
 ARG BUILD_DATE="NULL"
 ARG VERSION="NULL"
