@@ -44,8 +44,11 @@ jobs:
         else
           echo git_branch="$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
         fi
+        pwd
+        ls
     - name: Checkout dependencies
       run: |
+        source "$INIT_ENV"
         ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma/ -b ${{ steps.determine-base-branch.outputs.git_branch }}
     - name: Move source code
       run: mv $GITHUB_WORKSPACE/src /opt/carma/
