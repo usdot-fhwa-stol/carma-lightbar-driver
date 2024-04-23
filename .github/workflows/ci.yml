@@ -36,6 +36,8 @@ jobs:
       with:
         fetch-depth: 0
         path: src/${{ github.event.repository.name }} 
+    - name: Move source code
+      run: mv $GITHUB_WORKSPACE/src /opt/carma/
     - name: Determine base branch
       id: determine-base-branch
       run: |
@@ -50,8 +52,6 @@ jobs:
       run: |
         source "$INIT_ENV"
         ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma/ -b ${{ steps.determine-base-branch.outputs.git_branch }}
-    - name: Move source code
-      run: mv $GITHUB_WORKSPACE/src /opt/carma/
     - name: Build
       run: |
         source "$INIT_ENV"
