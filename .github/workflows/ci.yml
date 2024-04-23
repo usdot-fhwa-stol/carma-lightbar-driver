@@ -31,6 +31,11 @@ jobs:
         TERM: xterm
       options: "--user root"
     steps:
+    - name: Checkout ${{ github.event.repository.name }}
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        path: src/${{ github.event.repository.name }} 
     - name: Determine base branch
       id: determine-base-branch
       run: |
