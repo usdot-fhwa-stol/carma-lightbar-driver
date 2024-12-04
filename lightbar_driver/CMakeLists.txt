@@ -56,8 +56,8 @@ ament_auto_add_library(${node_lib} SHARED
         src/lightbar_driver_application.cpp
 )
 
-ament_auto_add_executable(${node_exec} 
-        src/main.cpp 
+ament_auto_add_executable(${node_exec}
+        src/main.cpp
 )
 
 # Register component
@@ -67,18 +67,18 @@ rclcpp_components_register_nodes(${node_lib} "lightbar_driver::LightBarApplicati
 # ament auto will handle linking of external dependencies
 target_link_libraries(${node_lib}
         ${worker_lib}
-        ${CURL_LIBRARIES} 
-        ${PUGIXML_LIBRARIES} 
+        ${CURL_LIBRARIES}
+        ${PUGIXML_LIBRARIES}
 )
 
 target_link_libraries(${node_exec}
         ${node_lib}
-        ${CURL_LIBRARIES} 
-        ${PUGIXML_LIBRARIES} 
+        ${CURL_LIBRARIES}
+        ${PUGIXML_LIBRARIES}
 )
 
 # Testing
-if(BUILD_TESTING)  
+if(BUILD_TESTING)
 
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies() # This populates the ${${PROJECT_NAME}_FOUND_TEST_DEPENDS} variable
@@ -92,6 +92,5 @@ endif()
 
 # Install
 ament_auto_package(
-        INSTALL_TO_SHARE launch
+        INSTALL_TO_SHARE launch config
 )
-
