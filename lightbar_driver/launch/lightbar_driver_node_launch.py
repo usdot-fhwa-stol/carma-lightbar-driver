@@ -40,7 +40,7 @@ def generate_launch_description():
 
     # Get parameter file path
     param_file_path = os.path.join(
-        get_package_share_directory('lightbar_driver'), 'config/params.yaml')
+        get_package_share_directory('lightbar_driver'), 'config/parameters.yaml')
 
     # Launch node(s) in a carma container to allow logging to be configured
     container = ComposableNodeContainer(
