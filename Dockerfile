@@ -45,4 +45,7 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 COPY --from=setup /home/carma/install /opt/carma/install
+COPY --from=setup /home/carma/src/scripts/shutdown.sh /home/carma/.base-image/shutdown.sh
+COPY --from=setup /home/carma/src/scripts/modified-entrypoint.sh /home/carma/.base-image/entrypoint.sh
+RUN sudo chmod +x /home/carma/.base-image/shutdown.sh /home/carma/.base-image/entrypoint.sh
 RUN sudo chmod -R +x /opt/carma/install
