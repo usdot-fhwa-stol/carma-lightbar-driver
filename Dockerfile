@@ -1,11 +1,11 @@
 #  Copyright (C) 2018-2021 LEIDOS.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
 #  the License at
-# 
+#
 #  http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -13,10 +13,10 @@
 #  the License.
 
 ARG DOCKER_ORG="usdotfhwastoldev"
-ARG DOCKER_TAG="develop"
+ARG DOCKER_TAG="develop-humble"
 FROM ${DOCKER_ORG}/carma-base:${DOCKER_TAG} as base_image
 FROM base_image as setup
-ARG GIT_BRANCH="develop" 
+ARG GIT_BRANCH="develop"
 
 ARG ROS1_PACKAGES=""
 ENV ROS1_PACKAGES=${ROS1_PACKAGES}
@@ -45,6 +45,7 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 COPY --from=setup /home/carma/install /opt/carma/install
+COPY --from=setup /home/carma/src/scripts/shutdown.sh /home/carma/.base-image/shutdown.sh
+COPY --from=setup /home/carma/src/scripts/modified-entrypoint.sh /home/carma/.base-image/entrypoint.sh
+RUN sudo chmod +x /home/carma/.base-image/shutdown.sh /home/carma/.base-image/entrypoint.sh
 RUN sudo chmod -R +x /opt/carma/install
-
-CMD  [ "wait-for-it.sh", "localhost:11311", "--", "roslaunch", "lightbar_driver", "lightbar_driver_node.launch"]

@@ -43,6 +43,10 @@ public:
     carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
 
     carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &);
+    carma_ros2_utils::CallbackReturn handle_on_deactivate(const rclcpp_lifecycle::State &);
+    carma_ros2_utils::CallbackReturn handle_on_cleanup(const rclcpp_lifecycle::State &);
+    carma_ros2_utils::CallbackReturn handle_on_error(const rclcpp_lifecycle::State &);
+    carma_ros2_utils::CallbackReturn handle_on_shutdown(const rclcpp_lifecycle::State &);
 
     carma_driver_msgs::msg::DriverStatus getStatus();
 
@@ -51,7 +55,7 @@ public:
 private:
     // API
     std::vector<std::string> api_;
-    // Driver Discovery Status 
+    // Driver Discovery Status
     carma_driver_msgs::msg::DriverStatus status_;
 
     Config config_;
@@ -59,7 +63,7 @@ private:
     // Publishers
     carma_ros2_utils::PubPtr<carma_driver_msgs::msg::LightBarStatus> lightbar_pub_;
     carma_ros2_utils::PubPtr<carma_driver_msgs::msg::DriverStatus> driver_discovery_pub_;
- 
+
      // Timers
     rclcpp::TimerBase::SharedPtr lightbar_timer_;
     rclcpp::TimerBase::SharedPtr driver_discovery_timer_;
@@ -67,7 +71,7 @@ private:
     // Service Servers
     carma_ros2_utils::ServicePtr<carma_driver_msgs::srv::GetLights> get_lights_srv_;
     carma_ros2_utils::ServicePtr<carma_driver_msgs::srv::SetLights> set_lights_srv_;
-    
+
     // LightBar Controller Object
     LightBarController lightbar_ctrl_;
 
@@ -103,7 +107,7 @@ private:
     /**
      * @brief Timer Callback that updates the driver discovery status topic
      */
-    void driverDiscoveryCB(); 
+    void driverDiscoveryCB();
 
     /**
      * @brief Called by the base DriverApplication class to fetch this implementation's api
