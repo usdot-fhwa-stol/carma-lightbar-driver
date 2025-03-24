@@ -26,7 +26,7 @@ namespace lightbar_driver
   {
     // Create initial config
     config_ = Config();
- 
+
     // Configure HTTP parameters of the controller
     config_.host_name = declare_parameter<std::string>("host_name", config_.host_name);
     config_.port = declare_parameter<int>("port", config_.port);
@@ -57,7 +57,7 @@ namespace lightbar_driver
     // Setup the ROS API
     api_.clear();
 
-    // Setup Publisher 
+    // Setup Publisher
     driver_discovery_pub_ = create_publisher<carma_driver_msgs::msg::DriverStatus>("driver_discovery", 1);
     api_.push_back(driver_discovery_pub_->get_topic_name());
     lightbar_pub_ = create_publisher<carma_driver_msgs::msg::LightBarStatus>("light_bar_status", 1);
@@ -67,7 +67,7 @@ namespace lightbar_driver
     get_lights_srv_= create_service<carma_driver_msgs::srv::GetLights>("get_lights",
                                                             std::bind(&LightBarApplication::getLightsCB, this, std_ph::_1, std_ph::_2, std_ph::_3));
     api_.push_back(get_lights_srv_->get_service_name());
-  
+
     set_lights_srv_ = create_service<carma_driver_msgs::srv::SetLights>("set_lights",
                                                             std::bind(&LightBarApplication::setLightsCB, this, std_ph::_1, std_ph::_2, std_ph::_3));
     api_.push_back(set_lights_srv_->get_service_name());
@@ -87,34 +87,54 @@ namespace lightbar_driver
         setStatus(status);
         return CallbackReturn::ERROR;
     }
-  
+
     // Return success if everthing initialized successfully
     return CallbackReturn::SUCCESS;
-  } 
+  }
 
-    
+  carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_deactivate(const rclcpp_lifecycle::State &)
+  {
+    lightbar_ctrl_.turnOffAll();
+    return CallbackReturn::SUCCESS;
+  }
+  carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_cleanup(const rclcpp_lifecycle::State &)
+  {
+    lightbar_ctrl_.turnOffAll();
+    return CallbackReturn::SUCCESS;
+  }
+  carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_error(const rclcpp_lifecycle::State &)
+  {
+    lightbar_ctrl_.turnOffAll();
+    return CallbackReturn::FAILURE; // By default an error will take us into the finalized sate.
+  }
+  carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_shutdown(const rclcpp_lifecycle::State &)
+  {
+    lightbar_ctrl_.turnOffAll();
+    return CallbackReturn::SUCCESS;
+  }
+
 carma_ros2_utils::CallbackReturn LightBarApplication::handle_on_activate(const rclcpp_lifecycle::State &prev_state)
- {
+{
         //Timer setup - Light Bar
-        lightbar_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000/config_.status_update_rate), 
+        lightbar_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000/config_.status_update_rate),
         std::bind(&LightBarApplication::updateStatusTimerCB, this));
 
         //Timer setup - Driver Discovery
-        driver_discovery_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000), 
+        driver_discovery_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000),
         std::bind(&LightBarApplication::driverDiscoveryCB, this));
 
         // Driver Status set to Operational
         carma_driver_msgs::msg::DriverStatus status = getStatus();
         status.status = carma_driver_msgs::msg::DriverStatus::OPERATIONAL;
         setStatus(status);
-        
+
         return CallbackReturn::SUCCESS;
  }
- 
+
 bool LightBarApplication::getLightsCB(const std::shared_ptr<rmw_request_id_t>,carma_driver_msgs::srv::GetLights::Request::SharedPtr req, carma_driver_msgs::srv::GetLights::Response::SharedPtr resp) {
     static auto ON = static_cast<carma_driver_msgs::msg::LightBarStatus::_flash_type>(carma_driver_msgs::msg::LightBarStatus::ON);
     static auto OFF = static_cast<carma_driver_msgs::msg::LightBarStatus::_flash_type>(carma_driver_msgs::msg::LightBarStatus::OFF);
-    
+
     // TODO (Optional) Make LightBarStatus service to accept LightBarID (front or back)
     // to give back status. With current design, we keep both lightbars with same state.
     LightBar curr_front;
@@ -140,7 +160,7 @@ bool LightBarApplication::getLightsCB(const std::shared_ptr<rmw_request_id_t>,ca
         setStatus(status);
         return false;
     }
-    
+
     //LightBar curr_back = lightbar_ctrl_.getState(BACK_ID);
 
     resp->status.yellow_solid    = curr_front.light_by_id[kYellowDimOn]   ? ON : OFF;
@@ -154,7 +174,7 @@ bool LightBarApplication::getLightsCB(const std::shared_ptr<rmw_request_id_t>,ca
     return true;
 }
 
-bool LightBarApplication::setLightsCB(const std::shared_ptr<rmw_request_id_t>,carma_driver_msgs::srv::SetLights::Request::SharedPtr req, carma_driver_msgs::srv::SetLights::Response::SharedPtr resp) 
+bool LightBarApplication::setLightsCB(const std::shared_ptr<rmw_request_id_t>,carma_driver_msgs::srv::SetLights::Request::SharedPtr req, carma_driver_msgs::srv::SetLights::Response::SharedPtr resp)
 {
     using carma_driver_msgs::msg::LightBarStatus;
     LightBar curr_front;
@@ -213,7 +233,7 @@ bool LightBarApplication::setLightsCB(const std::shared_ptr<rmw_request_id_t>,ca
     return true;
 }
 
-void LightBarApplication::updateStatusTimerCB() 
+void LightBarApplication::updateStatusTimerCB()
 {
     carma_driver_msgs::msg::LightBarStatus light_bar_msg;
     LightBar curr_front;
@@ -241,26 +261,26 @@ void LightBarApplication::updateStatusTimerCB()
         setStatus(status);
         return;
     }
-    light_bar_msg.yellow_solid  = curr_front.light_by_id[kYellowDimOn];         
-    light_bar_msg.left_arrow    = curr_front.light_by_id[kLeftArrowOn];         
-    light_bar_msg.right_arrow   = curr_front.light_by_id[kRightArrowOn];        
-    light_bar_msg.green_solid   = curr_front.light_by_id[kGreenSolidOn]; 
-    light_bar_msg.green_flash   = curr_front.light_by_id[kGreenFlashOn];        
-    light_bar_msg.flash         = curr_front.light_by_id[kYellowFlashOn];         
-    light_bar_msg.sides_solid   = curr_front.light_by_id[kYellowSidesOn];   
+    light_bar_msg.yellow_solid  = curr_front.light_by_id[kYellowDimOn];
+    light_bar_msg.left_arrow    = curr_front.light_by_id[kLeftArrowOn];
+    light_bar_msg.right_arrow   = curr_front.light_by_id[kRightArrowOn];
+    light_bar_msg.green_solid   = curr_front.light_by_id[kGreenSolidOn];
+    light_bar_msg.green_flash   = curr_front.light_by_id[kGreenFlashOn];
+    light_bar_msg.flash         = curr_front.light_by_id[kYellowFlashOn];
+    light_bar_msg.sides_solid   = curr_front.light_by_id[kYellowSidesOn];
 
     lightbar_pub_->publish(light_bar_msg);
 
     // bypassing any diagnostic and error handling stuff
     auto status = getStatus();
     status.status = carma_driver_msgs::msg::DriverStatus::OPERATIONAL;
-    setStatus(status); 
+    setStatus(status);
 }
 
-void LightBarApplication::driverDiscoveryCB() 
+void LightBarApplication::driverDiscoveryCB()
 {
     auto driver_status = getStatus();
-    driver_discovery_pub_->publish(driver_status); 
+    driver_discovery_pub_->publish(driver_status);
 }
 
 carma_driver_msgs::msg::DriverStatus LightBarApplication::getStatus()
@@ -279,5 +299,3 @@ void LightBarApplication::setStatus(carma_driver_msgs::msg::DriverStatus status)
 
 // Register the component with class_loader
 RCLCPP_COMPONENTS_REGISTER_NODE(lightbar_driver::LightBarApplication)
-
-
