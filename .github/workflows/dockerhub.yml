@@ -6,7 +6,6 @@ on:
       - develop
       - master
       - "release/*"
-      - sync_test_run
     tags:
       - "carma-system-*"
 jobs:
