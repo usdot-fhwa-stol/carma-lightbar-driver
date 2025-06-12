@@ -2,7 +2,6 @@
 |------|-----|-----|-----|
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_carma-lightbar-driver&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-fhwa-stol_carma-lightbar-driver) | [![Docker Hub build](https://github.com/usdot-fhwa-stol/carma-lightbar-driver/actions/workflows/dockerhub.yml/badge.svg?branch=carma-system-4.5.0)](https://github.com/usdot-fhwa-stol/carma-lightbar-driver/actions/workflows/dockerhub.yml) | [![Docker Hub build](https://github.com/usdot-fhwa-stol/carma-lightbar-driver/actions/workflows/dockerhub.yml/badge.svg?branch=release%2Flavida)](https://github.com/usdot-fhwa-stol/carma-lightbar-driver/actions/workflows/dockerhub.yml) | [![Docker Hub build](https://github.com/usdot-fhwa-stol/carma-lightbar-driver/actions/workflows/dockerhub.yml/badge.svg?branch=develop)](https://github.com/usdot-fhwa-stol/carma-lightbar-driver/actions/workflows/dockerhub.yml)
 
-
 # carma-lightbar-driver
 
 carma-lightbar-driver is the driver for use with a ADAM6256 IO Module custom configured Lightbar and the CARMA Platform
