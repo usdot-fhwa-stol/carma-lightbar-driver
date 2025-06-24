@@ -20,11 +20,13 @@
 set -eo pipefail
 
 dir=~
+BRANCH=develop
 while [[ $# -gt 0 ]]; do
       arg="$1"
       case $arg in
-            -d|--develop)
-                  BRANCH=develop
+            -b|--branch)
+                  BRANCH=$2
+                  shift
                   shift
             ;;
             -r|--root)
@@ -34,11 +36,6 @@ while [[ $# -gt 0 ]]; do
             ;;
       esac
 done
+git clone https://github.com/usdot-fhwa-stol/carma-msgs.git "${dir}"/CARMAMsgs --branch "${BRANCH}" --depth 1
+git clone https://github.com/usdot-fhwa-stol/carma-utils.git "${dir}"/CARMAUtils --branch "${BRANCH}" --depth 1
 
-if [[ "$BRANCH" = "develop" ]]; then
-      git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ~/src/CARMAMsgs --branch $BRANCH --depth 1
-      git clone https://github.com/usdot-fhwa-stol/carma-utils.git ~/src/CARMAUtils --branch $BRANCH --depth 1
-else
-      git clone https://github.com/usdot-fhwa-stol/carma-msgs.git ${dir}/src/CARMAMsgs --branch carma-system-4.5.0
-      git clone https://github.com/usdot-fhwa-stol/carma-utils.git ${dir}/src/CARMAUtils --branch carma-system-4.5.0
-fi
