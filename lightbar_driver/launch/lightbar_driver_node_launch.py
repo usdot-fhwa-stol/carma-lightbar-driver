@@ -42,6 +42,15 @@ def generate_launch_description():
     param_file_path = os.path.join(
         get_package_share_directory('lightbar_driver'), 'config/parameters.yaml')
 
+    # Declare the global_params_override_file launch argument
+    # Parameters in this file will override any parameters loaded in their respective packages
+    global_params_override_file = LaunchConfiguration('global_params_override_file')
+    declare_global_params_override_file_arg = DeclareLaunchArgument(
+        name = 'global_params_override_file',
+        default_value = "/opt/carma/vehicle/config/GlobalParamsOverride.yaml",
+        description = "Path to global file containing the parameters overwrite"
+    )
+
     # Launch node(s) in a carma container to allow logging to be configured
     container = ComposableNodeContainer(
         package='carma_ros2_utils',
@@ -59,7 +68,7 @@ def generate_launch_description():
                         {'use_intra_process_comms': True},
                         {'--log-level' : log_level }
                     ],
-                    parameters=[auth_config_file, param_file_path],
+                    parameters=[auth_config_file, param_file_path, global_params_override_file],
                     remappings=[
                         ("set_lights", "lightbar/set_lights"),
                     ],
@@ -71,5 +80,6 @@ def generate_launch_description():
     return LaunchDescription([
         declare_log_level_arg,
         declare_auth_config_file,
+        declare_global_params_override_file_arg,
         container
     ])
